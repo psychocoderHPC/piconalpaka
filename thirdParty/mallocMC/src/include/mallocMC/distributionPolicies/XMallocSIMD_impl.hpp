@@ -82,7 +82,7 @@ namespace DistributionPolicies{
     public:
       static const uint32 _pagesize = pagesize;
 
-      MAMC_ACCELERATOR
+      MAMC_ACC
       uint32 collect(uint32 bytes){
 
         can_use_coalescing = false;
@@ -113,7 +113,7 @@ namespace DistributionPolicies{
       }
 
 
-      MAMC_ACCELERATOR
+      MAMC_ACC
       void* distribute(void* allocatedMem){
         __shared__ char* warp_res[32];
 
