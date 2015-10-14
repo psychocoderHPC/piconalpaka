@@ -117,9 +117,9 @@ ALPAKA_FN_ACC void operator()(
     DataSpace<simDim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<simDim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    auto frame(alpaka::block::shared::allocVar<FRAME *>(acc)); // pointer to  frame storing particles
-    auto isValid(alpaka::block::shared::allocVar<bool>(acc)); // bool saying if frame is valid
-    auto particlesInFrame(alpaka::block::shared::allocVar<lcellId_t>(acc)); // number  of particles in current frame
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FRAME *>(acc)); // pointer to  frame storing particles
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc)); // bool saying if frame is valid
+    PMACC_AUTO(particlesInFrame,alpaka::block::shared::allocVar<lcellId_t>(acc)); // number  of particles in current frame
 
     using namespace parameters; // parameters of radiation
 
@@ -149,7 +149,7 @@ ALPAKA_FN_ACC void operator()(
 
     // particle counter used if not all particles are considered for
     // radiation calculation
-    auto counter_s(alpaka::block::shared::allocVar<int>(acc));
+    PMACC_AUTO(counter_s,alpaka::block::shared::allocVar<int>(acc));
 
     // memory for Nyquist frequency at current time step
 #if (__NYQUISTCHECK__==1)

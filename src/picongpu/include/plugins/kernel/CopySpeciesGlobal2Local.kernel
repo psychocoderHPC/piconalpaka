@@ -74,7 +74,7 @@ ALPAKA_FN_ACC void operator()(
 
     auto destFramePtr(alpaka::block::shared::allocArr<DestFramePtr, cellsInSuperCell>(acc));
     auto linearSuperCellIds(alpaka::block::shared::allocArr<int, cellsInSuperCell>(acc));
-    auto hdf5ParticleOffset(alpaka::block::shared::allocVar<int>(acc));
+    PMACC_AUTO(hdf5ParticleOffset,alpaka::block::shared::allocVar<int>(acc));
 
 
     const int linearThreadIdx = threadIndex.x();
