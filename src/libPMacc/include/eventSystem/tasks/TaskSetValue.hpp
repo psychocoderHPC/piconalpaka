@@ -201,7 +201,8 @@ public:
         kernelSetValue kernel;
         alpaka::workdiv::WorkDivMembers<alpaka::dim::DimInt<dim>, AlpakaIdxSize> workDiv(
             gridSize,
-            blockSize);
+            blockSize,
+            static_cast<AlpakaIdxSize>(1u));
         auto const exec(
             alpaka::exec::create<AlpakaAcc<alpaka::dim::DimInt<dim>>>(
                 workDiv,
@@ -273,7 +274,8 @@ public:
         kernelSetValue kernel;
         alpaka::workdiv::WorkDivMembers<alpaka::dim::DimInt<dim>, AlpakaIdxSize> workDiv(
             gridSize,
-            blockSize);
+            blockSize,
+            static_cast<AlpakaIdxSize>(1u));
         auto const exec(
             alpaka::exec::create<AlpakaAcc<alpaka::dim::DimInt<dim>>>(
                 workDiv,
