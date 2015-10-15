@@ -69,22 +69,27 @@ namespace PMacc
 
                     T_Val * const s_mem(acc.template getBlockSharedExternMem<T_Val>());
 
-                    /*end not needed threads*/
-                    if (tid >= src_count) return;
+                    bool isActive = (tid < src_count);
 
                     /*wait that all shared memory is initialized*/
                     alpaka::block::sync::syncBlockThreads(acc);
 
                     /*fill shared mem*/
-                    T_Val r_value = src[tid];
-                    /*reduce not readed global memory to shared*/
-                    uint32_t i = tid + globalThreadCount;
-                    while (i < src_count)
+                    if (isActive)
                     {
-                        func(r_value, src[i]);
-                        i += globalThreadCount;
+                        T_Val r_value;
+
+                        r_value = src[tid];
+                        /*reduce not readed global memory to shared*/
+                        uint32_t i = tid + globalThreadCount;
+                        while (i < src_count)
+                        {
+                            func(r_value, src[i]);
+                            i += globalThreadCount;
+                        }
+                        s_mem[l_tid] = r_value;
                     }
-                    s_mem[l_tid] = r_value;
+
                     alpaka::block::sync::syncBlockThreads(acc);;
                     /*now reduce shared memory*/
                     uint32_t chunk_count = blockSize.x();
@@ -94,15 +99,16 @@ namespace PMacc
                     {
                         const float half_threads = (float) chunk_count / 2.0f;
                         active_threads = static_cast<uint32_t>(alpaka::math::trunc(acc, half_threads));
-                        if (threadIndex.x() != 0 && l_tid >= active_threads) return; /*end not needed threads*/
+                        isActive = !(threadIndex.x() != 0 && l_tid >= active_threads);
 
                         chunk_count = ceilf(half_threads);
-                        func(s_mem[l_tid], s_mem[l_tid + chunk_count]);
+                        if (isActive)
+                            func(s_mem[l_tid], s_mem[l_tid + chunk_count]);
 
                         alpaka::block::sync::syncBlockThreads(acc);;
                     }
-
-                    func2(dest[blockIndex.x()], s_mem[0]);
+                    if (isActive)
+                        func2(dest[blockIndex.x()], s_mem[0]);
                 }
             };
         }
