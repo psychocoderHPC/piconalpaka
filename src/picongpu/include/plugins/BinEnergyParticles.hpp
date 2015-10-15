@@ -76,9 +76,9 @@ ALPAKA_FN_ACC void operator()(
     DataSpace<simDim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<simDim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    auto frame(alpaka::block::shared::allocVar<FRAME *>(acc));
-    auto isValid(alpaka::block::shared::allocVar<bool>(acc));
-    auto particlesInSuperCell(alpaka::block::shared::allocVar<lcellId_t>(acc));
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FRAME *>(acc));
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
+    PMACC_AUTO(particlesInSuperCell,alpaka::block::shared::allocVar<lcellId_t>(acc));
 
     const bool enableDetector = maximumSlopeToDetectorX != float_X(0.0) && maximumSlopeToDetectorZ != float_X(0.0);
 

@@ -178,13 +178,13 @@ ALPAKA_FN_ACC void operator()(
     DataSpace<simDim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<simDim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    auto srcFramePtr(alpaka::block::shared::allocVar<SrcFrameType *>(acc));
-    auto localCounter(alpaka::block::shared::allocVar<int>(acc));
-    auto globalOffset(alpaka::block::shared::allocVar<int>(acc));
+    PMACC_AUTO(srcFramePtr,alpaka::block::shared::allocVar<SrcFrameType *>(acc));
+    PMACC_AUTO(localCounter,alpaka::block::shared::allocVar<int>(acc));
+    PMACC_AUTO(globalOffset,alpaka::block::shared::allocVar<int>(acc));
 
     int storageOffset;
 
-    auto isValid(alpaka::block::shared::allocVar<bool>(acc));
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 

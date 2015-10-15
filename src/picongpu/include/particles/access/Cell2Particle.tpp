@@ -45,9 +45,9 @@ BOOST_PP_ENUM_TRAILING(N, NORMAL_ARGS, _)) \
                                threadIndex.y() * SuperCellSize::x::value + threadIndex.x(); \
     \
     typedef typename TParticlesBox::FrameType Frame; \
-    auto frame(alpaka::block::shared::allocVar<Frame*>(acc)); \
-    auto isValid(alpaka::block::shared::allocVar<bool>(acc)); \
-    auto particlesInSuperCell(alpaka::block::shared::allocVar<uint16_t>(acc)); \
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<Frame*>(acc)); \
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc)); \
+    PMACC_AUTO(particlesInSuperCell,alpaka::block::shared::allocVar<uint16_t>(acc)); \
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/ \
     \
     if(linearThreadIdx == 0) \
