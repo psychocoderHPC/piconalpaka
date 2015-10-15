@@ -474,7 +474,7 @@ ALPAKA_FN_ACC void operator()(
         "KernelDivideAnyCell has to be used as a 1 dimensional kernel only!");
 
     DataSpace<1> const blockSize(alpaka::workdiv::getWorkDiv<alpaka::Block, alpaka::Threads>(acc));
-    DataSpace<1> const blockIndex(alpaka::workdiv::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc));
+    DataSpace<1> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<1> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
     uint32_t tid = blockIndex.x() * blockSize.x() + threadIndex.x();
@@ -501,7 +501,7 @@ ALPAKA_FN_ACC void operator()(
         "KernelDivideAnyCell has to be used as a 1 dimensional kernel only!");
 
     DataSpace<1> const blockSize(alpaka::workdiv::getWorkDiv<alpaka::Block, alpaka::Threads>(acc));
-    DataSpace<1> const blockIndex(alpaka::workdiv::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc));
+    DataSpace<1> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<1> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
     uint32_t tid = blockIndex.x() * blockSize.x() + threadIndex.x();
