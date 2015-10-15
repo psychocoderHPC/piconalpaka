@@ -81,9 +81,9 @@ namespace gol
                 // Calculate indices.
 
                 // Get the block index.
-                PMacc::DataSpace<DIM2> const blockIdx(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
+                PMacc::DataSpace<DIM2> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
                 // Get the SuperCell index relative to the whole grid in units of SuperCells. A block corresponds directly to one SuperCell but the mapping can be arbitrary.
-                PMacc::DataSpace<DIM2> const gridSuperCellIdxSC(mapper.getSuperCellIndex(blockIdx));
+                PMacc::DataSpace<DIM2> const gridSuperCellIdxSC(mapper.getSuperCellIndex(blockIndex));
                 // Get the SuperCell index relative to the whole grid in unit of cells.
                 PMacc::DataSpace<DIM2> const gridSuperCellIdxC(gridSuperCellIdxSC * Mapping::SuperCellSize::toRT());
                 // Get the cell index relative to the super cell.
@@ -165,9 +165,9 @@ namespace gol
                 // Calculate indices.
 
                 // Get the block index.
-                PMacc::DataSpace<DIM2> const blockIdx(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
+                PMacc::DataSpace<DIM2> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
                 // Get the SuperCell index relative to the whole grid in units of SuperCells. A block corresponds directly to one SuperCell but the mapping can be arbitrary.
-                PMacc::DataSpace<DIM2> const gridSuperCellIdxSC(mapper.getSuperCellIndex(blockIdx));
+                PMacc::DataSpace<DIM2> const gridSuperCellIdxSC(mapper.getSuperCellIndex(blockIndex));
                 // Get the SuperCell index in unit of cells.
                 PMacc::DataSpace<DIM2> const gridSuperCellIdxC(gridSuperCellIdxSC * Mapping::SuperCellSize::toRT());
                 // Get the cell index relative to the super cell.
