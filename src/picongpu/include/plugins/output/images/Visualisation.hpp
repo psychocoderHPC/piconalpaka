@@ -200,13 +200,12 @@ ALPAKA_FN_ACC void operator()(
         alpaka::dim::Dim<T_Acc>::value == simDim,
         "KernelDivideAnyCell has to be used as a simDim dimensional kernel only!");
 
-    DataSpace<simDim> const blockSize(alpaka::workdiv::getWorkDiv<alpaka::Block, alpaka::Threads>(acc));
     DataSpace<simDim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<simDim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
     typedef typename MappingDesc::SuperCellSize Block;
     const DataSpace<simDim> block = mapper.getSuperCellIndex(DataSpace<simDim > (blockIndex));
-    const DataSpace<simDim> cell(block * Block::toRT() + blockIndex);
+    const DataSpace<simDim> cell(block * Block::toRT() + threadIndex);
     const DataSpace<simDim> blockOffset((block - mapper.getGuardingSuperCells()) * Block::toRT());
 
 
@@ -214,7 +213,7 @@ ALPAKA_FN_ACC void operator()(
     const DataSpace<DIM2> imageCell(
                                     realCell[transpose.x()],
                                     realCell[transpose.y()]);
-    const DataSpace<simDim> realCell2(blockOffset + blockIndex); //delete guard from cell idx
+    const DataSpace<simDim> realCell2(blockOffset + threadIndex); //delete guard from cell idx
 
 #if (SIMDIM==DIM3)
     uint32_t globalCell = realCell2[sliceDim] + globalOffset;
