@@ -75,7 +75,7 @@ ALPAKA_FN_ACC void operator()(
         Exchanges = traits::NumberOfExchanges<Dim>::value
     };
 
-    DataSpace<Dim> const blockIdx(alpaka::workdiv::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc));
+    DataSpace<Dim> const blockIdx(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<Dim> const threadIdx(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
     //\todo: testen ob es schneller ist, erst zu flushen wennn Source voll ist
