@@ -75,7 +75,7 @@ ALPAKA_FN_ACC void operator()(
         Exchanges = traits::NumberOfExchanges<Dim>::value
     };
 
-    DataSpace<Dim> const blockIdx(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
+    DataSpace<Dim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<Dim> const threadIdx(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
     //\todo: testen ob es schneller ist, erst zu flushen wennn Source voll ist
@@ -89,7 +89,7 @@ ALPAKA_FN_ACC void operator()(
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 
-    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIdx)));
+    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIndex)));
 
     if (threadIdx.x() == 0)
     {
@@ -278,10 +278,10 @@ ALPAKA_FN_ACC void operator()(
         Dim = Mapping::Dim
     };
 
-    DataSpace<Dim> const blockIdx(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
+    DataSpace<Dim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<Dim> const threadIdx(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIdx)));
+    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIndex)));
 
     PMACC_AUTO(lastFrame,alpaka::block::shared::allocVar<FRAME *>(acc));
     PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
@@ -360,10 +360,10 @@ ALPAKA_FN_ACC void operator()(
         Dim = Mapping::Dim
     };
 
-    DataSpace<Dim> const blockIdx(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
+    DataSpace<Dim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<Dim> const threadIdx(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIdx)));
+    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIndex)));
 
     //data copied from right (last) to left (first)
     PMACC_AUTO(firstFrame,alpaka::block::shared::allocVar<FRAME *>(acc));
@@ -487,10 +487,10 @@ ALPAKA_FN_ACC void operator()(
         Dim = Mapping::Dim
     };
 
-    DataSpace<Dim> const blockIdx(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
+    DataSpace<Dim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<Dim> const threadIdx(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIdx)));
+    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIndex)));
 
     const int linearThreadIdx = threadIdx.x();
 
@@ -551,10 +551,10 @@ ALPAKA_FN_ACC void operator()(
         Dim = Mapping::Dim
     };
 
-    DataSpace<Dim> const blockIdx(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
+    DataSpace<Dim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<Dim> const threadIdx(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIdx)));
+    DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIndex)));
 
     PMACC_AUTO(numBashedParticles,alpaka::block::shared::allocVar<uint32_t>(acc));
     PMACC_AUTO(frame,alpaka::block::shared::allocVar<FRAME *>(acc));
