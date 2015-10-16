@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
+
 #define TYPE unsigned long
 #define MAX_ERR_RECORD_COUNT 10
 #define MAX_NUM_DEVICES 16
@@ -18,7 +18,7 @@ extern "C" {
 #define BLOCKSIZE ((unsigned long)(1024*1024))
 
   char* print_cl_errstring(cl_int err);
-  
+
 #define TDIFF(tb, ta) (tb.tv_sec - ta.tv_sec + 0.000001*(tb.tv_usec - ta.tv_usec))
 
 #define RECORD_ERR(err, p, expect, current) do{         \
@@ -29,19 +29,19 @@ extern "C" {
     err_current[idx] = (unsigned long)current;		\
     err_second_read[idx] = (unsigned long)(*p);		\
   }while(0)
-  
+
 #define PRINTF(fmt,...) do{                                             \
     pthread_mutex_lock(&mutex);						\
-    printf("[%s][%s][%d]:"fmt, time_string(), hostname, mc->device_idx, ##__VA_ARGS__); \
+    printf("[%s][%s][%d]:" fmt, time_string(), hostname, mc->device_idx, ##__VA_ARGS__); \
     fflush(stdout);							\
     pthread_mutex_unlock(&mutex);                                       \
   } while(0)
 
 
-  
+
 #define ERR_BAD_STATE  -1
 #define ERR_GENERAL -999
-  
+
 #define CLERR if (rc != CL_SUCCESS){					\
     printf("ERROR: opencl call failed with rc(%d), line %d, file %s\n", rc, __LINE__, __FILE__); \
     printf("Error: %s\n", print_cl_errstring(rc));			\
@@ -49,7 +49,7 @@ extern "C" {
   }
 
 #define DIM(x) (sizeof(x)/sizeof(x[0]))
-  
+
   typedef struct memtest_control_s{
     cl_context context;
     cl_uint device_idx;
@@ -65,13 +65,13 @@ extern "C" {
     cl_program program;
     cl_event events[MAX_NUM_KERNELS];
   }memtest_control_t;
-  
+
   void test10(memtest_control_t*);
   void* run_tests(void* arg);
 
-  
+
   typedef  void (*test_func_t)(memtest_control_t*);
-  
+
   typedef struct cuda_memtest_s{
     test_func_t func;
     const char* desc;
@@ -79,7 +79,7 @@ extern "C" {
   }cuda_memtest_t;
 
 
-  
+
 #ifdef __cplusplus
 }
 #endif
