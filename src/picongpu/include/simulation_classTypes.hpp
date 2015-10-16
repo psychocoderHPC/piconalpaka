@@ -70,7 +70,13 @@ namespace picongpu
 #define __picKernelArea(KERNEL, DIM, description, area, block)\
     {\
         PMACC_KERNEL_CATCH(::alpaka::wait::wait(::PMacc::Environment<>::get().DeviceManager().getAccDevice()), "picKernelArea: crash before kernel call");\
-        ::PMacc::AreaMapping<area, MappingDesc> mapper(description);\
+        typedef ::PMacc::AreaMapping<area, MappingDesc> UsedAreaMapper;              \
+        UsedAreaMapper mapper(description);                                          \
         ::PMacc::TaskKernel * const taskKernel(::PMacc::Environment<>::get().Factory().createTaskKernel(#KERNEL));\
-        auto const exec(::alpaka::exec::create<::PMacc::AlpakaAcc<DIM>>(::alpaka::workdiv::WorkDivMembers<DIM, AlpakaIdxSize>(mapper.getGridDim(),block,static_cast<AlpakaIdxSize>(1u)), KERNEL\
+        auto const exec(::alpaka::exec::create<::PMacc::AlpakaAcc<DIM>>(             \
+            ::alpaka::workdiv::WorkDivMembers<DIM, AlpakaIdxSize>(                   \
+                mapper.getGridDim(),                                                 \
+                block,                                                               \
+                ::PMacc::math::Vector<AlpakaIdxSize,UsedAreaMapper::Dim>::create(1u) \
+            ), KERNEL                                                                \
         PIC_KERNEL_PARAMS
