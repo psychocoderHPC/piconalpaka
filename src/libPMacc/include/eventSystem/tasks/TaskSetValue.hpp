@@ -202,7 +202,7 @@ public:
         alpaka::workdiv::WorkDivMembers<alpaka::dim::DimInt<dim>, AlpakaIdxSize> workDiv(
             gridSize,
             blockSize,
-            static_cast<AlpakaIdxSize>(1u));
+            ::PMacc::math::Vector<::PMacc::AlpakaIdxSize,dim>::create(1u));
         auto const exec(
             alpaka::exec::create<AlpakaAcc<alpaka::dim::DimInt<dim>>>(
                 workDiv,
@@ -275,7 +275,7 @@ public:
         alpaka::workdiv::WorkDivMembers<alpaka::dim::DimInt<dim>, AlpakaIdxSize> workDiv(
             gridSize,
             blockSize,
-            static_cast<AlpakaIdxSize>(1u));
+            ::PMacc::math::Vector<::PMacc::AlpakaIdxSize,dim>::create(1u));
         auto const exec(
             alpaka::exec::create<AlpakaAcc<alpaka::dim::DimInt<dim>>>(
                 workDiv,
