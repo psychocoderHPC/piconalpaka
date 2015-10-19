@@ -41,17 +41,15 @@ namespace AlignmentPolicies{
 
     public:
 
-    MAMC_HOST
     static boost::tuple<void*,size_t> alignPool(void* memory, size_t memsize){
       return boost::make_tuple(memory,memsize);
     }
 
-    MAMC_ACC
+    MAMC_HOST_ACCELERATOR
     static uint32 applyPadding(uint32 bytes){
       return bytes;
     }
 
-    MAMC_HOST
     static std::string classname(){
       return "Noop";
     }

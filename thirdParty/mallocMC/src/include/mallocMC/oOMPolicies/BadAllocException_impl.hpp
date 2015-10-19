@@ -38,7 +38,7 @@ namespace OOMPolicies{
 
   struct BadAllocException
   {
-    MAMC_ACC
+    MAMC_ACCELERATOR
     static void* handleOOM(void* mem){
 #ifdef __CUDACC__
 //#if __CUDA_ARCH__ < 350

@@ -38,7 +38,7 @@ namespace OOMPolicies{
   class ReturnNull
   {
     public:
-      MAMC_ACC
+      MAMC_ACCELERATOR
       static void* handleOOM(void* mem){
         return NULL;
       }
