@@ -57,24 +57,24 @@ namespace kernel
                          /* typename C0, typename C1, ... */                                                \
     template<typename Zone, BOOST_PP_ENUM_PARAMS(N, typename C), typename Functor>                          \
                                     /* C0 c0, C1 c1, ... */                                                 \
-    void operator()(const Zone& p_zone, BOOST_PP_ENUM_BINARY_PARAMS(N, C, c), const Functor& functor)        \
+    void operator()(const Zone& p_zone, const Functor& functor, BOOST_PP_ENUM_BINARY_PARAMS(N, C, c))       \
     {                                                                                                       \
         /* C0 c0_shifted = c0(p_zone.offset); */                                                             \
         /* C1 c1_shifted = c1(p_zone.offset); */                                                             \
         /* ... */                                                                                           \
         BOOST_PP_REPEAT(N, SHIFT_CURSOR_ZONE, _)                                                            \
                                                                                                             \
-        dim3 blockDim(BlockDim::toRT().toDim3());                                                           \
         detail::SphericMapper<Zone::dim, BlockDim> mapper;                                                  \
         using namespace PMacc;                                                                              \
-        __cudaKernel(detail::kernelForeach)(mapper.cudaGridDim(p_zone.size), blockDim)                       \
+        detail::kernelForeach kernel;                                                                       \
+        __cudaKernel(kernel, alpaka::dim::DimInt<3u>, mapper.gridDim(p_zone.size), BlockDim::toRT())        \
                   /* c0_shifted, c1_shifted, ... */                                                         \
-            (mapper, BOOST_PP_ENUM(N, SHIFTED_CURSOR, _), lambda::make_Functor(functor));                   \
+            (mapper, lambda::make_Functor(functor), BOOST_PP_ENUM(N, SHIFTED_CURSOR, _));                   \
     }
 
 /** Foreach algorithm that calls a cuda kernel
  *
- * \tparam BlockDim 3D compile-time vector (PMacc::math::CT::Int) of the size of the cuda blockDim.
+ * \tparam BlockDim 3D compile-time vector (PMacc::math::CT::Int) of the size of the cuda blockSize.
  *
  * blockDim has to fit into the computing volume.
  * E.g. (8,8,4) fits into (256, 256, 256)

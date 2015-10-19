@@ -48,7 +48,7 @@ namespace picongpu
         DINLINE void
         operator()( Type& dest, const Type src )
         {
-            atomicAddWrapper( &dest, src );
+            alpaka::atomic::atomicOp<alpaka::atomic::op::Add>(acc, &dest, src );
         }
     };
 
@@ -108,7 +108,7 @@ namespace picongpu
             p_bin < num_pbins ? /* do not change p_bin */ : p_bin=num_pbins-1;
 
             /** \todo take particle shape into account */
-            atomicAddWrapper( &(*curDBufferOriginInBlock( p_bin, r_bin )),
+            alpaka::atomic::atomicOp<alpaka::atomic::op::Add>(acc, &(*curDBufferOriginInBlock( p_bin, r_bin )),
                               particleChargeDensity );
         }
     };
@@ -177,10 +177,11 @@ namespace picongpu
                 using namespace lambda;
                 DECLARE_PLACEHOLDERS();
                 forEachThreadInBlock( dBufferInBlock.zone(),
+                                      _1 = float_PS(0.0),
                                       dBufferInBlock.origin(),
-                                      _1 = float_PS(0.0) );
+                );
             }
-            __syncthreads();
+            alpaka::block::sync::syncBlockThreads(acc);
 
             FunctorParticle<r_dir, num_pbins, SuperCellSize> functorParticle;
             particleAccess::Cell2Particle<SuperCellSize> forEachParticleInCell;
@@ -192,16 +193,17 @@ namespace picongpu
                                    axis_p_range
                                  );
 
-            __syncthreads();
+            alpaka::block::sync::syncBlockThreads(acc);
             /* add to global dBuffer */
             forEachThreadInBlock( /* area to work on */
                                   dBufferInBlock.zone(),
+                                 /* functor */
+                                  FunctorAtomicAdd<float_PS>(),
                                   /* data below - cursors will be shifted and
                                    * dereferenced */
                                   curOriginPhaseSpace(0, indexBlockOffset[r_dir]),
-                                  dBufferInBlock.origin(),
-                                  /* functor */
-                                  FunctorAtomicAdd<float_PS>() );
+                                  dBufferInBlock.origin()
+            );
         }
     };
 

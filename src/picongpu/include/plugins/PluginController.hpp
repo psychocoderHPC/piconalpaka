@@ -51,7 +51,9 @@
 
 #include "mappings/kernel/MappingDescription.hpp"
 
+#if(PIC_ENABLE_LIVE_VIEW == 1)
 #include "plugins/LiveViewPlugin.hpp"
+#endif
 #include "plugins/ILightweightPlugin.hpp"
 #include "plugins/ISimulationPlugin.hpp"
 
@@ -67,7 +69,7 @@
 #if(SIMDIM==DIM3)
 #include "plugins/IntensityPlugin.hpp"
 #endif
-#include "plugins/SliceFieldPrinterMulti.hpp"
+//#include "plugins/SliceFieldPrinterMulti.hpp"
 
 #include "plugins/output/images/Visualisation.hpp"
 
@@ -123,26 +125,26 @@ private:
 
     /* define stand alone plugins*/
     typedef bmpl::vector<
-        EnergyFields,
-        SumCurrents
+            EnergyFields,
+            SumCurrents
 #if(SIMDIM==DIM3)
-      , IntensityPlugin
+          , IntensityPlugin
 #endif
 #if (ENABLE_INSITU_VOLVIS == 1)
-      , InSituVolumeRenderer
+          , InSituVolumeRenderer
 #endif
 #if (ENABLE_ADIOS == 1)
-      , adios::ADIOSWriter
+          , adios::ADIOSWriter
 #endif
 #if (ENABLE_HDF5 == 1)
-      , hdf5::HDF5Writer
+          , hdf5::HDF5Writer
 #endif
     > StandAlonePlugins;
 
 
     /* define field plugins */
     typedef bmpl::vector<
-     SliceFieldPrinterMulti<bmpl::_1>
+     /*SliceFieldPrinterMulti<bmpl::_1>*/
     > UnspecializedFieldPlugins;
 
     typedef bmpl::vector< FieldB, FieldE, FieldJ> AllFields;
@@ -152,27 +154,29 @@ private:
     >::type CombinedUnspecializedFieldPlugins;
 
     typedef bmpl::transform<
-    CombinedUnspecializedFieldPlugins,
-      ApplyDataToPlugin<bmpl::_1>
+            CombinedUnspecializedFieldPlugins,
+            ApplyDataToPlugin<bmpl::_1>
     >::type FieldPlugins;
 
 
     /* define species plugins */
     typedef bmpl::vector <
-        CountParticles<bmpl::_1>,
-        EnergyParticles<bmpl::_1>,
-        BinEnergyParticles<bmpl::_1>,
-        LiveViewPlugin<bmpl::_1>,
-        PositionsParticles<bmpl::_1>
+            CountParticles<bmpl::_1>,
+            EnergyParticles<bmpl::_1>,
+            BinEnergyParticles<bmpl::_1>,
+            PositionsParticles<bmpl::_1>
+#if(PIC_ENABLE_LIVE_VIEW == 1)
+            , LiveViewPlugin<bmpl::_1>
+#endif
 #if(ENABLE_RADIATION == 1)
-      , Radiation<bmpl::_1>
+          , Radiation<bmpl::_1>
 #endif
 #if(PIC_ENABLE_PNG==1)
-     , PngPlugin< Visualisation<bmpl::_1, PngCreator> >
+          , PngPlugin< Visualisation<bmpl::_1, PngCreator> >
 #endif
 #if(ENABLE_HDF5 == 1)
-      , PerSuperCell<bmpl::_1>
-      , PhaseSpaceMulti<particles::shapes::Counter::ChargeAssignment, bmpl::_1>
+          , PerSuperCell<bmpl::_1>
+          , PhaseSpaceMulti<particles::shapes::Counter::ChargeAssignment, bmpl::_1>
 #endif
     > UnspecializedSpeciesPlugins;
 
@@ -181,16 +185,16 @@ private:
     >::type CombinedUnspecializedSpeciesPlugins;
 
     typedef bmpl::transform<
-        CombinedUnspecializedSpeciesPlugins,
-        ApplyDataToPlugin<bmpl::_1>
+            CombinedUnspecializedSpeciesPlugins,
+            ApplyDataToPlugin<bmpl::_1>
     >::type SpeciesPlugins;
 
 
     /* create sequence with all plugins*/
     typedef MakeSeq<
         StandAlonePlugins,
-        FieldPlugins,
-        SpeciesPlugins
+            FieldPlugins,
+            SpeciesPlugins
     >::type AllPlugins;
 
     /**

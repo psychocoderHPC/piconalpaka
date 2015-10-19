@@ -65,10 +65,10 @@ struct DeviceMemAssigner
         }
         /* the maximum number of threads per block for devices with
          * compute capability > 2.0 is 1024 */
-        assert(blockDim.productOfComponents() <= 1024);
+        assert(blockSize.productOfComponents() <= 1024);
 
         algorithm::kernel::RT::Foreach foreach(blockDim);
-        foreach(myZone, cursor, lambda::_1 = value);
+        foreach(myZone, lambda::_1 = value, cursor);
     }
 };
 

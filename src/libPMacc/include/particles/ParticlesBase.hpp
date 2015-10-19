@@ -56,12 +56,9 @@ public:
      */
     typedef ParticlesBox< FrameType, MappingDesc::Dim> ParticlesBoxType;
 
-    enum
-    {
-        Dim = MappingDesc::Dim,
-        Exchanges = traits::NumberOfExchanges<Dim>::value,
-        TileSize = math::CT::volume<typename MappingDesc::SuperCellSize>::type::value
-    };
+    static constexpr int Dim = MappingDesc::Dim;
+    static constexpr int Exchanges = traits::NumberOfExchanges<Dim>::value;
+    static constexpr size_t TileSize = math::CT::volume<typename MappingDesc::SuperCellSize>::type::value;
 
 protected:
 
@@ -77,20 +74,33 @@ protected:
     template<uint32_t AREA>
     void shiftParticles()
     {
-        StrideMapping<AREA, DIM3, MappingDesc> mapper(this->cellDescription);
+        StrideMapping<AREA, 3, MappingDesc> mapper(this->cellDescription);
         ParticlesBoxType pBox = particlesBuffer->getDeviceParticleBox();
+        DataSpace<Dim> blockSize(DataSpace<Dim>::create(1));
+        blockSize.x() = static_cast<AlpakaIdxSize>(TileSize);
 
         __startTransaction(__getTransactionEvent());
         do
         {
-            __cudaKernel(kernelShiftParticles)
-                (mapper.getGridDim(), TileSize)
+            KernelShiftParticles kernelShiftParticles;
+            __cudaKernel(kernelShiftParticles,
+                         alpaka::dim::DimInt<Dim>,
+                         mapper.getGridDim(),
+                         blockSize)
                 (pBox, mapper);
-            __cudaKernel(kernelFillGaps)
-                (mapper.getGridDim(), TileSize)
+
+            KernelFillGaps kernelFillGaps;
+            __cudaKernel(kernelFillGaps,
+                         alpaka::dim::DimInt<Dim>,
+                         mapper.getGridDim(),
+                         blockSize)
                 (pBox, mapper);
-            __cudaKernel(kernelFillGapsLastFrame)
-                (mapper.getGridDim(), TileSize)
+
+            KernelFillGapsLastFrame kernelFillGapsLastFrame;
+            __cudaKernel(kernelFillGapsLastFrame,
+                         alpaka::dim::DimInt<Dim>,
+                         mapper.getGridDim(),
+                         blockSize)
                 (pBox, mapper);
         }
         while (mapper.next());
@@ -107,12 +117,21 @@ protected:
     {
         AreaMapping<AREA, MappingDesc> mapper(this->cellDescription);
 
-        __cudaKernel(kernelFillGaps)
-            (mapper.getGridDim(), TileSize)
+        DataSpace<Dim> blockSize(DataSpace<Dim>::create(1));
+        blockSize.x() = static_cast<AlpakaIdxSize>(TileSize);
+
+        KernelFillGaps kernelFillGaps;
+        __cudaKernel(kernelFillGaps,
+                     alpaka::dim::DimInt<Dim>,
+                     mapper.getGridDim(),
+                     blockSize)
             (particlesBuffer->getDeviceParticleBox(), mapper);
 
-        __cudaKernel(kernelFillGapsLastFrame)
-            (mapper.getGridDim(), TileSize)
+        KernelFillGapsLastFrame kernelFillGapsLastFrame;
+        __cudaKernel(kernelFillGapsLastFrame,
+                     alpaka::dim::DimInt<Dim>,
+                     mapper.getGridDim(),
+                     blockSize)
             (particlesBuffer->getDeviceParticleBox(), mapper);
     }
 

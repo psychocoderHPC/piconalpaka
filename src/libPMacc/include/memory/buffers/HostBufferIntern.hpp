@@ -26,6 +26,8 @@
 #include "eventSystem/tasks/Factory.hpp"
 #include "eventSystem/EventSystem.hpp"
 
+#include <alpaka/alpaka.hpp>
+
 #include <cassert>
 
 namespace PMacc
@@ -38,55 +40,115 @@ template <class TYPE, unsigned DIM>
 class HostBufferIntern : public HostBuffer<TYPE, DIM>
 {
 public:
+    using DataBufHost = alpaka::mem::buf::Buf<
+        AlpakaHostDev,
+        TYPE,
+        alpaka::dim::DimInt<DIM>,
+        AlpakaSize>;
 
-    typedef typename DeviceBuffer<TYPE, DIM>::DataBoxType DataBoxType;
+    using DataBoxType = typename DeviceBuffer<TYPE, DIM>::DataBoxType;
 
     /**
      * constructor
      * @param dataSpace DataSpace describing the size of the HostBufferIntern to be created
      */
-    HostBufferIntern(DataSpace<DIM> dataSpace) throw (std::bad_alloc) :
-    HostBuffer<TYPE, DIM>(dataSpace),
-    pointer(NULL),ownPointer(true)
+    HostBufferIntern(DataSpace<DIM> dataSpace) :
+        HostBuffer<TYPE, DIM>(dataSpace),
+        m_upDataBufHost(
+            new DataBufHost(
+                alpaka::mem::buf::alloc<TYPE, AlpakaSize>(
+                    Environment<>::get().DeviceManager().getHostDevice(),
+                    PMacc::algorithms::precisionCast::precisionCast<AlpakaSize>(dataSpace))
+                )),
+        m_dataViewHost(
+            alpaka::mem::view::createView<typename PMacc::HostBuffer<TYPE, DIM>::DataViewHost>(
+                *m_upDataBufHost.get()
+            )
+        )
     {
-        CUDA_CHECK(cudaMallocHost(&pointer, dataSpace.productOfComponents() * sizeof (TYPE)));
         reset(false);
     }
 
-    HostBufferIntern(HostBufferIntern& source, DataSpace<DIM> dataSpace, DataSpace<DIM> offset=DataSpace<DIM>())  :
-    HostBuffer<TYPE, DIM>(dataSpace),
-    pointer(NULL),ownPointer(false)
+    HostBufferIntern(HostBufferIntern& source, DataSpace<DIM> dataSpace, DataSpace<DIM> offset = DataSpace<DIM>()) :
+        HostBuffer<TYPE, DIM>(dataSpace),
+        m_upDataBufHost(),
+        m_dataViewHost(
+            alpaka::mem::view::createView<typename PMacc::HostBuffer<TYPE, DIM>::DataViewHost>(
+                source.getMemBufView(),
+                PMacc::algorithms::precisionCast::precisionCast<AlpakaSize>(dataSpace),
+                PMacc::algorithms::precisionCast::precisionCast<AlpakaSize>(offset)
+            )
+        )
     {
-        pointer=&(source.getDataBox()(offset));/*fix me, this is a bad way*/
         reset(true);
     }
 
     /**
      * destructor
      */
-    virtual ~HostBufferIntern() throw (std::runtime_error)
+    virtual ~HostBufferIntern()
     {
         __startOperation(ITask::TASK_HOST);
-
-        if (pointer && ownPointer)
-        {
-            CUDA_CHECK(cudaFreeHost(pointer));
-        }
     }
 
     /*! Get pointer of memory
-     * @return pointer to memory
-     */
+        * @return pointer to memory
+        */
     TYPE* getBasePointer()
     {
         __startOperation(ITask::TASK_HOST);
-        return pointer;
+        return alpaka::mem::view::getPtrNative(alpaka::mem::view::getBuf(m_dataViewHost));
     }
 
-    TYPE* getPointer()
+    TYPE const * getPointer() const
     {
         __startOperation(ITask::TASK_HOST);
-        return pointer;
+        return alpaka::mem::view::getPtrNative(m_dataViewHost);
+    }
+    TYPE * getPointer()
+    {
+        __startOperation(ITask::TASK_HOST);
+        return alpaka::mem::view::getPtrNative(m_dataViewHost);
+    }
+
+    void reset(bool preserveData = true)
+    {
+        __startOperation(ITask::TASK_HOST);
+        this->setCurrentSize(this->getDataSpace().productOfComponents());
+        if (!preserveData)
+            std::memset(getPointer(), 0, this->getDataSpace().productOfComponents() * sizeof (TYPE));
+    }
+
+    void setValue(const TYPE& value)
+    {
+        __startOperation(ITask::TASK_HOST);
+        size_t const currentSize = this->getCurrentSize();
+        auto const pPointer(getPointer());
+        for (size_t i = 0; i < currentSize; i++)
+        {
+            pPointer[i] = value;
+        }
+    }
+
+    DataBoxType getDataBox()
+    {
+        __startOperation(ITask::TASK_HOST);
+        return DataBoxType(PitchedBox<TYPE, DIM>(
+            getPointer(),
+            DataSpace<DIM>(),
+            this->getDataSpace(),
+            alpaka::mem::view::getPitchBytes<DIM-1>(m_dataViewHost)));
+    }
+
+    typename PMacc::HostBuffer<TYPE, DIM>::DataViewHost const & getMemBufView() const
+    {
+        __startOperation(ITask::TASK_HOST);
+        return m_dataViewHost;
+    }
+    typename PMacc::HostBuffer<TYPE, DIM>::DataViewHost & getMemBufView()
+    {
+        __startOperation(ITask::TASK_HOST);
+        return m_dataViewHost;
     }
 
     void copyFrom(DeviceBuffer<TYPE, DIM>& other)
@@ -95,34 +157,8 @@ public:
         Environment<>::get().Factory().createTaskCopyDeviceToHost(other, *this);
     }
 
-    void reset(bool preserveData = true)
-    {
-        __startOperation(ITask::TASK_HOST);
-        this->setCurrentSize(this->getDataSpace().productOfComponents());
-        if (!preserveData)
-            memset(pointer, 0, this->getDataSpace().productOfComponents() * sizeof (TYPE));
-    }
-
-    void setValue(const TYPE& value)
-    {
-        __startOperation(ITask::TASK_HOST);
-        size_t current_size = this->getCurrentSize();
-        for (size_t i = 0; i < current_size; i++)
-        {
-            pointer[i] = value;
-        }
-    }
-
-    DataBoxType getDataBox()
-    {
-        __startOperation(ITask::TASK_HOST);
-        return DataBoxType(PitchedBox<TYPE, DIM > (pointer, DataSpace<DIM > (),
-                                                   this->data_space, this->data_space[0] * sizeof (TYPE)));
-    }
-
 private:
-    TYPE* pointer;
-    bool ownPointer;
+    std::unique_ptr<DataBufHost> m_upDataBufHost;
+    typename PMacc::HostBuffer<TYPE, DIM>::DataViewHost m_dataViewHost;
 };
-
 }

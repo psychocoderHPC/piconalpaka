@@ -26,6 +26,8 @@
 #include "math/Vector.hpp"
 #include "types.h"
 
+#include <alpaka/alpaka.hpp>
+
 namespace PMacc
 {
 
@@ -57,20 +59,27 @@ namespace PMacc
             }
         }
 
-        /**
-         * constructor.
-         * Sets size of all dimensions from cuda dim3.
-         */
-        HDINLINE DataSpace(dim3 value)
-        {
-            for (uint32_t i = 0; i < DIM; ++i)
-            {
-                (*this)[i] = *(&(value.x) + i);
-            }
-        }
-
         HDINLINE DataSpace(const DataSpace<DIM>& value) : BaseType(value)
         {
+        }
+
+        /**
+         * Constructor from alpaka::Vec.
+         *
+         * @param The vector to copy.
+         */
+        template<
+            typename TDim,
+            typename TSize,
+            typename = typename std::enable_if<(TDim::value == DIM)>::type>
+        HDINLINE DataSpace(
+            alpaka::Vec<TDim, TSize> const & vec)
+        {
+            for (uint32_t i(0); i < DIM; ++i)
+            {
+                // alpaka vectors are z,y,x.
+                (*this)[i] = vec[(DIM-1)-i];
+            }
         }
 
         /**
@@ -163,11 +172,6 @@ namespace PMacc
             for (uint32_t i = 0; i < DIM; i++)
                 result[i] = (size_t) (*this)[i];
             return result;
-        }
-
-        HDINLINE operator dim3() const
-        {
-            return this->toDim3();
         }
 
     };

@@ -59,7 +59,11 @@ cmake_minimum_required(VERSION 2.8.12.2)
 
 # dependencies ################################################################
 #
-find_package(CUDA 5.0 REQUIRED)
+find_package(CUDA 5.0)
+if(CUDA_FOUND)
+    add_definitions("-DMAMC_CUDA_ENABLED=1")
+endif()
+
 find_package(Boost 1.48.0 REQUIRED)
 
 

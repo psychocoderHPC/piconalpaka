@@ -1,5 +1,5 @@
 /**
- * Copyright 2015 Rene Widera
+ * Copyright 2015 Rene Widera, Benjamin Worpitz
  *
  * This file is part of PIConGPU.
  *
@@ -34,8 +34,18 @@ namespace picongpu
 
     class MallocMCBuffer : public ISimulationData
     {
-    public:
+        using BufHost = alpaka::mem::buf::Buf<
+            AlpakaHostDev,
+            char,
+            alpaka::dim::DimInt<1u>,
+            AlpakaSize>;
+        using BufWrapperDev = alpaka::mem::buf::BufPlainPtrWrapper<
+            AlpakaAccDev,
+            char,
+            alpaka::dim::DimInt<1u>,
+            AlpakaSize>;
 
+    public:
         MallocMCBuffer();
 
         virtual ~MallocMCBuffer();
@@ -50,7 +60,7 @@ namespace picongpu
             return std::string("MallocMCBuffer");
         }
 
-        int64_t getOffset()
+        std::ptrdiff_t getOffset()
         {
             return hostBufferOffset;
         }
@@ -58,9 +68,9 @@ namespace picongpu
         void synchronize();
 
     private:
-
-        char* hostPtr;
-        int64_t hostBufferOffset;
+        std::unique_ptr<BufHost> upBufHost;
+        std::unique_ptr<BufWrapperDev> upBufWrapperDev;
+        std::ptrdiff_t hostBufferOffset;
         mallocMC::HeapInfo deviceHeapInfo;
 
     };

@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Felix Schmitt, Rene Widera
+ * Copyright 2013,2015 Felix Schmitt, Rene Widera, Benjamin Worpitz
  *
  * This file is part of libPMacc.
  *
@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <cuda.h>
+#include "Environment.hpp"
 #include "types.h"
 
 #include <cstring> // memset
@@ -50,13 +50,13 @@ public:
      */
     void getMemoryInfo(size_t *free, size_t *total = NULL)
     {
-        size_t freeInternal = 0;
-        size_t totalInternal = 0;
-
-        CUDA_CHECK(cudaMemGetInfo(&freeInternal, &totalInternal));
 
         if (free != NULL)
         {
+            size_t freeInternal(
+                alpaka::dev::getFreeMemBytes(
+                    *device.get()));
+
             if (reservedMem > freeInternal)
                 freeInternal = 0;
             else
@@ -66,6 +66,10 @@ public:
         }
         if (total != NULL)
         {
+            size_t totalInternal(
+                alpaka::dev::getMemBytes(
+                    *device.get()));
+
             if (reservedMem > totalInternal)
                 totalInternal = 0;
             else
@@ -78,6 +82,9 @@ public:
     /** Returns true if the memory pool is shared by host and device */
     bool isSharedMemoryPool()
     {
+#ifdef PMACC_ACC_CPU
+        return true;
+#else
         size_t freeInternal = 0;
         size_t freeAtStart = 0;
 
@@ -97,6 +104,7 @@ public:
             return true;
 
         return false;
+#endif
     }
 
     void setReservedMemory(size_t reservedMem)
@@ -104,7 +112,13 @@ public:
         this->reservedMem = reservedMem;
     }
 
+    void activate(AlpakaAccDev const & dev)
+    {
+        device.reset(new AlpakaAccDev(dev));
+    }
+
 protected:
+    std::unique_ptr<AlpakaAccDev> device;
     size_t reservedMem;
 
 private:

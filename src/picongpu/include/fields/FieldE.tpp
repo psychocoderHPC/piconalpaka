@@ -164,18 +164,23 @@ void FieldE::laserManipulation( uint32_t currentStep )
     if ( ( currentStep * DELTA_T ) >= laserProfile::INIT_TIME ||
          Environment<simDim>::get().GridController().getCommunicationMask( ).isSet( TOP ) || numSlides != 0 ) return;
 
-    DataSpace<simDim-1> gridBlocks;
-    DataSpace<simDim-1> blockSize;
+    DataSpace<simDim> gridBlocks(DataSpace<simDim>::create(1));
+    DataSpace<simDim> blockSize(DataSpace<simDim>::create(1));
     gridBlocks.x()=fieldE->getGridLayout( ).getDataSpaceWithoutGuarding( ).x( ) / SuperCellSize::x::value;
     blockSize.x()=SuperCellSize::x::value;
 #if(SIMDIM ==DIM3)
     gridBlocks.y()=fieldE->getGridLayout( ).getDataSpaceWithoutGuarding( ).z( ) / SuperCellSize::z::value;
     blockSize.y()=SuperCellSize::z::value;
 #endif
-    __cudaKernel( kernelLaserE )
-        ( gridBlocks,
-          blockSize )
-        ( this->getDeviceDataBox( ), laser->getLaserManipulator( currentStep ) );
+
+    KernelLaserE kernelLaserE;
+    __cudaKernel(
+        kernelLaserE,
+        alpaka::dim::DimInt<simDim>,
+        gridBlocks,
+        blockSize)(
+            this->getDeviceDataBox( ),
+            laser->getLaserManipulator( currentStep ));
 }
 
 void FieldE::reset( uint32_t )

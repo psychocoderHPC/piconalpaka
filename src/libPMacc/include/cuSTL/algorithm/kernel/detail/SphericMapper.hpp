@@ -55,23 +55,23 @@ struct SphericMapper<1, BlockSize>
 {
     static const int dim = 1;
 
-    dim3 cudaGridDim(const math::Size_t<1>& size) const
+    DataSpace<dim> gridDim(const math::Size_t<dim>& size) const
     {
-        return dim3(size.x() / BlockSize::x::value, 1, 1);
+        return DataSpace<1>(size.x() / BlockSize::x::value);
     }
 
     HDINLINE
-    math::Int<1> operator()(const math::Int<1>& _blockIdx,
-                              const math::Int<1>& _threadIdx) const
+    math::Int<dim> operator()(const math::Int<dim>& _blockIdx,
+                              const math::Int<dim>& _threadIdx) const
     {
         return _blockIdx.x() * BlockSize::x::value + _threadIdx.x();
     }
 
     HDINLINE
-    math::Int<1> operator()(const dim3& _blockIdx, const dim3& _threadIdx = dim3(0,0,0)) const
+    math::Int<dim> operator()(const alpaka::Vec<alpaka::dim::DimInt<1u>, std::size_t>& _blockIdx, const alpaka::Vec<alpaka::dim::DimInt<1u>, std::size_t>& _threadIdx = alpaka::Vec<alpaka::dim::DimInt<1u>, std::size_t>(0)) const
     {
-        return operator()(math::Int<1>((int)_blockIdx.x),
-                          math::Int<1>((int)_threadIdx.x));
+        return operator()(math::Int<dim>(_blockIdx[0]),
+                          math::Int<dim>(_threadIdx[0]));
     }
 };
 
@@ -80,25 +80,27 @@ struct SphericMapper<2, BlockSize>
 {
     static const int dim = 2;
 
-    dim3 cudaGridDim(const math::Size_t<2>& size) const
+    DataSpace<dim> gridDim(const math::Size_t<dim>& size) const
     {
-        return dim3(size.x() / BlockSize::x::value,
-                    size.y() / BlockSize::y::value, 1);
+        return DataSpace<dim>(size.x() / BlockSize::x::value,
+                              size.y() / BlockSize::y::value);
     }
 
     HDINLINE
-    math::Int<2> operator()(const math::Int<2>& _blockIdx,
-                              const math::Int<2>& _threadIdx) const
+    math::Int<dim> operator()(const math::Int<dim>& _blockIdx,
+                              const math::Int<dim>& _threadIdx) const
     {
-        return math::Int<2>( _blockIdx.x() * BlockSize::x::value + _threadIdx.x(),
-                             _blockIdx.y() * BlockSize::y::value + _threadIdx.y() );
+        return math::Int<dim>( _blockIdx.x() * BlockSize::x::value + _threadIdx.x(),
+                               _blockIdx.y() * BlockSize::y::value + _threadIdx.y() );
     }
 
+    template<
+        typename TSize>
     HDINLINE
-    math::Int<2> operator()(const dim3& _blockIdx, const dim3& _threadIdx = dim3(0,0,0)) const
+    math::Int<dim> operator()(const alpaka::Vec<alpaka::dim::DimInt<2u>, std::size_t>& _blockIdx, const alpaka::Vec<alpaka::dim::DimInt<2u>, std::size_t>& _threadIdx = alpaka::Vec<alpaka::dim::DimInt<2u>, std::size_t>(0,0)) const
     {
-        return operator()(math::Int<2>(_blockIdx.x, _blockIdx.y),
-                          math::Int<2>(_threadIdx.x, _threadIdx.y));
+        return operator()(math::Int<dim>(_blockIdx[0], _blockIdx[1]),
+                          math::Int<dim>(_threadIdx[0], _threadIdx[1]));
     }
 };
 
@@ -107,108 +109,27 @@ struct SphericMapper<3, BlockSize>
 {
     static const int dim = 3;
 
-    dim3 cudaGridDim(const math::Size_t<3>& size) const
+    DataSpace<dim> gridDim(const math::Size_t<dim>& size) const
     {
-        return dim3(size.x() / BlockSize::x::value,
-                    size.y() / BlockSize::y::value,
-                    size.z() / BlockSize::z::value);
+        return DataSpace<dim>(size.x() / BlockSize::x::value,
+                            size.y() / BlockSize::y::value,
+                            size.z() / BlockSize::z::value);
     }
 
     HDINLINE
-    math::Int<3> operator()(const math::Int<3>& _blockIdx,
-                             const math::Int<3>& _threadIdx) const
+    math::Int<dim> operator()(const math::Int<dim>& _blockIdx,
+                             const math::Int<dim>& _threadIdx) const
     {
-        return math::Int<3>( _blockIdx * (math::Int<3>)BlockSize().toRT() + _threadIdx );
+        return math::Int<dim>( _blockIdx * (math::Int<dim>)BlockSize().toRT() + _threadIdx );
     }
 
+    template<
+        typename TSize>
     HDINLINE
-    math::Int<3> operator()(const dim3& _blockIdx, const dim3& _threadIdx = dim3(0,0,0)) const
+    math::Int<dim> operator()(const alpaka::Vec<alpaka::dim::DimInt<3u>, std::size_t>& _blockIdx, const alpaka::Vec<alpaka::dim::DimInt<3u>, std::size_t>& _threadIdx = alpaka::Vec<alpaka::dim::DimInt<3u>, std::size_t>(0,0,0)) const
     {
-        return operator()(math::Int<3>(_blockIdx.x, _blockIdx.y, _blockIdx.z),
-                          math::Int<3>(_threadIdx.x, _threadIdx.y, _threadIdx.z));
-    }
-};
-
-/* Runtime BlockSize */
-
-template<>
-struct SphericMapper<1, mpl::void_>
-{
-    static const int dim = 1;
-
-    dim3 cudaGridDim(const math::Size_t<1>& size, const math::Size_t<3>& blockDim) const
-    {
-        return dim3(size.x() / blockDim.x(), 1, 1);
-    }
-
-    DINLINE
-    math::Int<1> operator()(const math::Int<1>& _blockIdx,
-                              const math::Int<1>& _threadIdx) const
-    {
-        return _blockIdx.x() * blockDim.x + _threadIdx.x();
-    }
-
-    DINLINE
-    math::Int<1> operator()(const dim3& _blockIdx, const dim3& _threadIdx = dim3(0,0,0)) const
-    {
-        return operator()(math::Int<1>((int)_blockIdx.x),
-                          math::Int<1>((int)_threadIdx.x));
-    }
-};
-
-template<>
-struct SphericMapper<2, mpl::void_>
-{
-    static const int dim = 2;
-
-    dim3 cudaGridDim(const math::Size_t<2>& size, const math::Size_t<3>& blockDim) const
-    {
-        return dim3(size.x() / blockDim.x(),
-                    size.y() / blockDim.y(), 1);
-    }
-
-    DINLINE
-    math::Int<2> operator()(const math::Int<2>& _blockIdx,
-                              const math::Int<2>& _threadIdx) const
-    {
-        return math::Int<2>( _blockIdx.x() * blockDim.x + _threadIdx.x(),
-                             _blockIdx.y() * blockDim.y + _threadIdx.y() );
-    }
-
-    DINLINE
-    math::Int<2> operator()(const dim3& _blockIdx, const dim3& _threadIdx = dim3(0,0,0)) const
-    {
-        return operator()(math::Int<2>(_blockIdx.x, _blockIdx.y),
-                          math::Int<2>(_threadIdx.x, _threadIdx.y));
-    }
-};
-
-template<>
-struct SphericMapper<3, mpl::void_>
-{
-    static const int dim = 3;
-
-    dim3 cudaGridDim(const math::Size_t<3>& size, const math::Size_t<3>& blockDim) const
-    {
-        return dim3(size.x() / blockDim.x(),
-                    size.y() / blockDim.y(),
-                    size.z() / blockDim.z());
-    }
-
-    DINLINE
-    math::Int<3> operator()(const math::Int<3>& _blockIdx,
-                             const math::Int<3>& _threadIdx) const
-    {
-        return math::Int<3>( _blockIdx.x() * blockDim.x + _threadIdx.x(),
-                             _blockIdx.y() * blockDim.y + _threadIdx.y(),
-                             _blockIdx.z() * blockDim.z + _threadIdx.z() );
-    }
-
-    DINLINE
-    math::Int<3> operator()(const dim3& _blockIdx, const dim3& _threadIdx = dim3(0,0,0)) const
-    {
-        return operator()(math::Int<3>(_blockIdx.x, _blockIdx.y, _blockIdx.z),
-                          math::Int<3>(_threadIdx.x, _threadIdx.y, _threadIdx.z));
+        return operator()(math::Int<dim>(_blockIdx[0], _blockIdx[1], _blockIdx[2]),
+                          math::Int<dim>(_threadIdx[0], _threadIdx[1], _threadIdx[2]));
     }
 };
 

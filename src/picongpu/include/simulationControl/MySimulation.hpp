@@ -84,7 +84,6 @@ public:
      * Constructor
      */
     MySimulation() :
-    laser(NULL),
     fieldB(NULL),
     fieldE(NULL),
     fieldJ(NULL),
@@ -94,8 +93,9 @@ public:
     myCurrentInterpolation(NULL),
     pushBGField(NULL),
     currentBGField(NULL),
-    cellDescription(NULL),
+    laser(NULL),
     initialiserController(NULL),
+    cellDescription(NULL),
     slidingWindow(false)
     {
         ForEach<VectorAllSpecies, particles::AssignNull<bmpl::_1>, MakeIdentifier<bmpl::_1> > setPtrToNull;
@@ -281,9 +281,9 @@ public:
         createSpeciesMemory(forward(particleStorage), cellDescription);
 
         size_t freeGpuMem(0);
+        Environment<>::get().EnvMemoryInfo().setReservedMemory(totalFreeGpuMemory);
         Environment<>::get().EnvMemoryInfo().getMemoryInfo(&freeGpuMem);
-        freeGpuMem -= totalFreeGpuMemory;
-
+      
         if( Environment<>::get().EnvMemoryInfo().isSharedMemoryPool() )
         {
             freeGpuMem /= 2;
