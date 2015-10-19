@@ -45,7 +45,7 @@ namespace mallocMC{
 namespace AlignmentPolicies{
 
 namespace Shrink2NS{
-    
+
   template<int PSIZE> struct __PointerEquivalent{ typedef unsigned int type;};
   template<>
   struct __PointerEquivalent<8>{ typedef unsigned long long int type; };
@@ -78,7 +78,7 @@ namespace Shrink2NS{
     //        this project is are at least CUDA 7.0 and gcc 4.8.2
     BOOST_STATIC_ASSERT(static_cast<uint32>(dataAlignment) > 0);
     //dataAlignment must also be a power of 2!
-    BOOST_STATIC_ASSERT(dataAlignment && !(dataAlignment & (dataAlignment-1)) ); 
+    BOOST_STATIC_ASSERT(dataAlignment && !(dataAlignment & (dataAlignment-1)) );
 
     public:
     static boost::tuple<void*,size_t> alignPool(void* memory, size_t memsize){
@@ -104,8 +104,7 @@ namespace Shrink2NS{
       return boost::make_tuple(memory,memsize);
     }
 
-    MAMC_HOST
-    MAMC_ACCELERATOR
+    MAMC_HOST_ACCELERATOR
     static uint32 applyPadding(uint32 bytes){
       return (bytes + dataAlignment - 1) & ~(dataAlignment-1);
     }

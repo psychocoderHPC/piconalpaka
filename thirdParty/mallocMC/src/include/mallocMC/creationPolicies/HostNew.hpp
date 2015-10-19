@@ -1,12 +1,10 @@
 /*
   mallocMC: Memory Allocator for Many Core Architectures.
-  https://www.hzdr.de/crp
 
-  Copyright 2014 Institute of Radiation Physics,
+  Copyright 2015 Institute of Radiation Physics,
                  Helmholtz-Zentrum Dresden - Rossendorf
 
-  Author(s):  Carlchristian Eckert - c.eckert ( at ) hzdr.de
-              Benjamin Worpitz - HZDR
+  Author(s):  Benjamin Worpitz - HZDR
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -29,15 +27,16 @@
 
 #pragma once
 
-#if defined(MAMC_CUDA_ENABLED) && defined(__CUDACC__)
 
-#include "creationPolicies/Scatter.hpp"
-#include "creationPolicies/Scatter_impl.hpp"
+namespace mallocMC{
+namespace CreationPolicies{
 
-#include "creationPolicies/OldMalloc.hpp"
-#include "creationPolicies/OldMalloc_impl.hpp"
+  /**
+   * @brief classic new/delete behaviour
+   *
+   * This CreationPolicy implements the classic host-side new and delete.
+   */
+  class HostNew;
 
-#endif
-
-#include "creationPolicies/HostNew.hpp"
-#include "creationPolicies/HostNew_impl.hpp"
+} //namespace CreationPolicies
+} //namespace mallocMC

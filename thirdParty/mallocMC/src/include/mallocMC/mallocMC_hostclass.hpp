@@ -26,7 +26,7 @@
   THE SOFTWARE.
 */
 
-#pragma once 
+#pragma once
 
 #include "mallocMC_utils.hpp"
 #include "mallocMC_constraints.hpp"
@@ -120,16 +120,16 @@ namespace mallocMC{
    * @tparam T_ReservePoolPolicy The desired type of a ReservePoolPolicy
    * @tparam T_AlignmentPolicy The desired type of a AlignmentPolicy
    */
-  template < 
-     typename T_CreationPolicy, 
-     typename T_DistributionPolicy, 
-     typename T_OOMPolicy, 
+  template <
+     typename T_CreationPolicy,
+     typename T_DistributionPolicy,
+     typename T_OOMPolicy,
      typename T_ReservePoolPolicy,
      typename T_AlignmentPolicy
        >
-  struct Allocator : 
-    public T_CreationPolicy, 
-    public T_OOMPolicy, 
+  struct Allocator :
+    public T_CreationPolicy,
+    public T_OOMPolicy,
     public T_ReservePoolPolicy,
     public T_AlignmentPolicy,
     public PolicyConstraints<T_CreationPolicy,T_DistributionPolicy,T_OOMPolicy,T_ReservePoolPolicy,T_AlignmentPolicy>

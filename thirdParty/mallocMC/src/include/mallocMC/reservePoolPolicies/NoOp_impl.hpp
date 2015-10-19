@@ -1,12 +1,10 @@
 /*
   mallocMC: Memory Allocator for Many Core Architectures.
-  https://www.hzdr.de/crp
 
-  Copyright 2014 Institute of Radiation Physics,
+  Copyright 2015 Institute of Radiation Physics,
                  Helmholtz-Zentrum Dresden - Rossendorf
 
-  Author(s):  Carlchristian Eckert - c.eckert ( at ) hzdr.de
-              Benjamin Worpitz - HZDR
+  Author(s):  Benjamin Worpitz - HZDR
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -29,15 +27,29 @@
 
 #pragma once
 
-#if defined(MAMC_CUDA_ENABLED) && defined(__CUDACC__)
+#include <string>
 
-#include "creationPolicies/Scatter.hpp"
-#include "creationPolicies/Scatter_impl.hpp"
+#include "NoOp.hpp"
 
-#include "creationPolicies/OldMalloc.hpp"
-#include "creationPolicies/OldMalloc_impl.hpp"
+namespace mallocMC{
+namespace ReservePoolPolicies{
 
-#endif
+  struct NoOp{
+    MAMC_ACCELERATOR
+    static void* setMemPool(size_t memsize){
+      return NULL;
+    }
 
-#include "creationPolicies/HostNew.hpp"
-#include "creationPolicies/HostNew_impl.hpp"
+    MAMC_ACCELERATOR
+    static void resetMemPool(void *p=NULL){
+    }
+
+    MAMC_HOST
+    static std::string classname(){
+      return "NoOp";
+    }
+
+  };
+
+} //namespace ReservePoolPolicies
+} //namespace mallocMC

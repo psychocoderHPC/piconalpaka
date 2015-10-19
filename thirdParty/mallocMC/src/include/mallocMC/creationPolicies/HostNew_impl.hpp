@@ -1,10 +1,10 @@
 /*
   mallocMC: Memory Allocator for Many Core Architectures.
 
-  Copyright 2014 Institute of Radiation Physics,
+  Copyright 2015 Institute of Radiation Physics,
                  Helmholtz-Zentrum Dresden - Rossendorf
 
-  Author(s):  Carlchristian Eckert - c.eckert ( at ) hzdr.de
+  Author(s):  Benjamin Worpitz - HZDR
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -23,38 +23,68 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-*/
+ */
 
 #pragma once
 
 #include <boost/cstdint.hpp>
-#include <string>
+#include <boost/mpl/bool.hpp>
+#include <iostream>
 
-#include "Noop.hpp"
-#include "../mallocMC_prefixes.hpp"
+#include "HostNew.hpp"
 
-namespace mallocMC{
-namespace AlignmentPolicies{
+namespace mallocMC
+{
+namespace CreationPolicies
+{
 
-  class Noop{
+class HostNew
+{
     typedef boost::uint32_t uint32;
+    typedef boost::uint8_t uint8;
 
-    public:
+public:
+    typedef boost::mpl::bool_<false> providesAvailableSlots;
 
-    static boost::tuple<void*,size_t> alignPool(void* memory, size_t memsize){
-      return boost::make_tuple(memory,memsize);
+    MAMC_HOST
+    void* create(uint32 bytes)
+    {
+      return reinterpret_cast<void*>(new uint8[bytes]);
     }
 
-    MAMC_HOST_ACCELERATOR
-    static uint32 applyPadding(uint32 bytes){
-      return bytes;
+    MAMC_HOST
+    void destroy(void* mem)
+    {
+        delete[] reinterpret_cast<uint8*> (mem);
     }
 
-    static std::string classname(){
-      return "Noop";
+    MAMC_HOST
+    bool isOOM( void* p, size_t s )
+    {
+        return s && (p == NULL);
     }
 
-  };
+    template < typename T>
+    MAMC_HOST
+    static void* initHeap( const T& obj, void* pool, size_t memsize )
+    {
+        return const_cast<void *> (reinterpret_cast<void const *> (&obj));
+    }
 
-} //namespace AlignmentPolicies
+    template < typename T>
+    MAMC_HOST
+    static void finalizeHeap( const T& obj, void* pool )
+    {
+        return;
+    }
+
+    MAMC_HOST
+    static std::string classname( )
+    {
+        return "HostNew";
+    }
+
+};
+
+} //namespace CreationPolicies
 } //namespace mallocMC

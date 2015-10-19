@@ -34,7 +34,7 @@
 
 namespace mallocMC{
 namespace CreationPolicies{
-    
+
   class OldMalloc
   {
     typedef boost::uint32_t uint32;
@@ -42,17 +42,20 @@ namespace CreationPolicies{
     public:
     typedef boost::mpl::bool_<false> providesAvailableSlots;
 
-    __device__ void* create(uint32 bytes)
+    MAMC_ACCELERATOR
+    void* create(uint32 bytes)
     {
       return ::malloc(static_cast<size_t>(bytes));
     }
 
-    __device__ void destroy(void* mem)
+    MAMC_ACCELERATOR
+    void destroy(void* mem)
     {
-      free(mem);
+      ::free(mem);
     }
 
-    __device__ bool isOOM(void* p, size_t s){
+    MAMC_ACCELERATOR
+    bool isOOM(void* p, size_t s){
       return s && (p == NULL);
     }
 
@@ -61,7 +64,7 @@ namespace CreationPolicies{
       T* dAlloc;
       MALLOCMC_CUDA_CHECKED_CALL(cudaGetSymbolAddress((void**)&dAlloc,obj));
       return dAlloc;
-    }   
+    }
 
     template < typename T>
     static void finalizeHeap(const T& obj, void* pool){

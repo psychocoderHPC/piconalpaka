@@ -10,6 +10,7 @@
 
   Author(s):  Markus Steinberger - steinberger ( at ) icg.tugraz.at
               Carlchristian Eckert - c.eckert ( at ) hzdr.de
+              Benjamin Worpitz - HZDR
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -35,27 +36,52 @@
 #include "mallocMC_prefixes.hpp"
 #include <vector>
 
+/** Creates a global typedef
+ *
+ * Will create a global typedef of the supplied type. This should be done first.
+ */
+#define MALLOCMC_TYPEDEF(MALLOCMC_USER_DEFINED_TYPENAME)                       \
+namespace mallocMC{                                                            \
+    typedef MALLOCMC_USER_DEFINED_TYPENAME mallocMCType;                       \
+}
+
 /** Creates a global object of a many core memory allocator
  *
- * Will create a global object of the supplied type and use it to generate
- * global functions that use this type internally. This should be done after
+ * Will create a global object. This should be done after defining a new
+ * many core memory allocator with a typedef.
+ */
+#if defined(MAMC_CUDA_ENABLED) && defined(__CUDACC__)
+
+#define MALLOCMC_OBJECT()                                                      \
+    namespace mallocMC{                                                        \
+        MAMC_ACCELERATOR mallocMCType mallocMCGlobalObject;                    \
+    }
+
+#else
+
+#define MALLOCMC_OBJECT()                                                      \
+    namespace mallocMC{                                                        \
+        mallocMCType mallocMCGlobalObject;                                     \
+    }
+
+#endif
+
+/** Creates a global object of a many core memory allocator
+ *
+ * Will create global heap functions that use the allocator. This should be done after
  * defining a new many core memory allocator with a typedef.
  */
-#define MALLOCMC_GLOBAL_FUNCTIONS(MALLOCMC_USER_DEFINED_TYPENAME)                \
-namespace mallocMC{                                                             \
-  typedef MALLOCMC_USER_DEFINED_TYPENAME mallocMCType;                           \
-                                                                               \
-MAMC_ACCELERATOR mallocMCType mallocMCGlobalObject;                               \
-                                                                               \
-MAMC_HOST void* initHeap(                                                       \
+#define MALLOCMC_HEAP()                                                        \
+namespace mallocMC{                                                            \
+MAMC_HOST void* initHeap(                                                      \
     size_t heapsize = 8U*1024U*1024U,                                          \
-    mallocMCType &p = mallocMCGlobalObject                                       \
+    mallocMCType &p = mallocMCGlobalObject                                     \
     )                                                                          \
 {                                                                              \
     return p.initHeap(heapsize);                                               \
 }                                                                              \
-MAMC_HOST void finalizeHeap(                                                    \
-    mallocMCType &p = mallocMCGlobalObject                                       \
+MAMC_HOST void finalizeHeap(                                                   \
+    mallocMCType &p = mallocMCGlobalObject                                     \
     )                                                                          \
 {                                                                              \
     p.finalizeHeap();                                                          \
@@ -93,7 +119,7 @@ bool providesAvailableSlots(){                                                  
  */
 #ifndef __THROW
   #define __THROW
-#endif 
+#endif
 
 /** Create the functions malloc() and free() inside a namespace
  *
@@ -101,17 +127,19 @@ bool providesAvailableSlots(){                                                  
  * "malloc" or "free". This is useful when using a policy that contains a call
  * to the original device-side malloc() from CUDA.
  */
-#define MALLOCMC_MALLOC()                                                       \
-namespace mallocMC{                                                             \
-MAMC_ACCELERATOR                                                                \
+#define MALLOCMC_MALLOC()                                                      \
+namespace mallocMC{                                                            \
+_Pragma("hd_warning_disable")                                                  \
+MAMC_ACCELERATOR                                                               \
 void* malloc(size_t t) __THROW                                                 \
 {                                                                              \
-  return mallocMC::mallocMCGlobalObject.alloc(t);                                \
+  return mallocMC::mallocMCGlobalObject.alloc(t);                              \
 }                                                                              \
-MAMC_ACCELERATOR                                                                \
-void  free(void* p) __THROW                                                    \
+_Pragma("hd_warning_disable")                                                  \
+MAMC_ACCELERATOR                                                               \
+void free(void* p) __THROW                                                     \
 {                                                                              \
-  mallocMC::mallocMCGlobalObject.dealloc(p);                                     \
+  mallocMC::mallocMCGlobalObject.dealloc(p);                                   \
 }                                                                              \
 } /* end namespace mallocMC */
 
@@ -130,23 +158,16 @@ std::vector<mallocMC::HeapInfo> getHeapLocations()                             \
 }                                                                              \
 } /* end namespace mallocMC */
 
-
-/* if the defines do not exist (wrong CUDA version etc),
- * create at least empty defines
- */
-#ifndef MALLOCMC_MALLOC
-#define MALLOCMC_MALLOC()
-#endif
-
-
 /** Set up the global variables and functions
  *
  * This Macro should be called with the type of a newly defined allocator. It
  * will create a global object of that allocator and the necessary functions to
  * initialize and allocate memory.
  */
-#define MALLOCMC_SET_ALLOCATOR_TYPE(MALLOCMC_USER_DEFINED_TYPE)                  \
-MALLOCMC_GLOBAL_FUNCTIONS(MALLOCMC_USER_DEFINED_TYPE)                            \
-MALLOCMC_MALLOC()                                                               \
-MALLOCMC_HEAPLOC()                                                              \
+#define MALLOCMC_SET_ALLOCATOR_TYPE(MALLOCMC_USER_DEFINED_TYPE)                \
+MALLOCMC_TYPEDEF(MALLOCMC_USER_DEFINED_TYPE)                                   \
+MALLOCMC_OBJECT()                                                              \
+MALLOCMC_HEAP()                                                                \
+MALLOCMC_MALLOC()                                                              \
+MALLOCMC_HEAPLOC()                                                             \
 MALLOCMC_AVAILABLESLOTS()

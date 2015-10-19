@@ -6,6 +6,7 @@
                      Helmholtz-Zentrum Dresden - Rossendorf
 
   Author(s):  Carlchristian Eckert - c.eckert ( at ) hzdr.de
+              Benjamin Worpitz - HZDR
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +29,19 @@
 
 #pragma once
 
-#define MAMC_HOST __host__
-#define MAMC_ACCELERATOR __device__
+#if defined(MAMC_CUDA_ENABLED) && defined(__CUDACC__)
+    #define MAMC_HOST __host__
+    #define MAMC_HOST_ACCELERATOR __host__ __device__
+    #define MAMC_ACCELERATOR __device__
+#else
+    #define MAMC_HOST
+    #define MAMC_HOST_ACCELERATOR
+    #define MAMC_ACCELERATOR
+#endif
 
+#if defined(MAMC_CUDA_ENABLED) && defined(__CUDACC__)
+    #define MAMC_NO_HOST_ACC_WARNING\
+        _Pragma("hd_warning_disable")
+#else
+    #define MAMC_NO_HOST_ACC_WARNING
+#endif
