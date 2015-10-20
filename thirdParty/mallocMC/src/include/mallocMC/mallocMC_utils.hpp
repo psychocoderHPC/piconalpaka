@@ -41,6 +41,7 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include <boost/cstdint.hpp>
 
 #include "mallocMC_prefixes.hpp"
 
@@ -51,55 +52,48 @@ namespace CUDA
   class error : public std::runtime_error
   {
   private:
-    MAMC_HOST
-    static std::string genErrorString(cudaError error, const char* file, int line)
+    static std::string genErrorString(cudaError errorValue, const char* file, int line)
     {
       std::ostringstream msg;
-      msg << file << '(' << line << "): error: " << cudaGetErrorString(error);
+      msg << file << '(' << line << "): error: " << cudaGetErrorString(errorValue);
       return msg.str();
     }
   public:
-    MAMC_HOST
-    error(cudaError error, const char* file, int line)
-      : runtime_error(genErrorString(error, file, line))
+    error(cudaError errorValue, const char* file, int line)
+      : runtime_error(genErrorString(errorValue, file, line))
     {
     }
 
-    MAMC_HOST
-    error(cudaError error)
-      : runtime_error(cudaGetErrorString(error))
+    error(cudaError errorValue)
+      : runtime_error(cudaGetErrorString(errorValue))
     {
     }
 
-    MAMC_HOST
     error(const std::string& msg)
       : runtime_error(msg)
     {
     }
   };
 
-  MAMC_HOST
-  inline void checkError(cudaError error, const char* file, int line)
+  inline void checkError(cudaError errorValue, const char* file, int line)
   {
 #ifdef _DEBUG
-    if (error != cudaSuccess)
-      throw CUDA::error(error, file, line);
+    if (errorValue != cudaSuccess)
+      throw CUDA::error(errorValue, file, line);
 #endif
   }
 
-  MAMC_HOST
   inline void checkError(const char* file, int line)
   {
     checkError(cudaGetLastError(), file, line);
   }
 
-  MAMC_HOST
   inline void checkError()
   {
 #ifdef _DEBUG
-    cudaError error = cudaGetLastError();
-    if (error != cudaSuccess)
-      throw CUDA::error(error);
+    cudaError errorValue = cudaGetLastError();
+    if (errorValue != cudaSuccess)
+      throw CUDA::error(errorValue);
 #endif
   }
 
@@ -109,7 +103,7 @@ namespace CUDA
 
 
 #define warp_serial                                    \
-  for (uint32_richtig_huebsch __mask = __ballot(1),                    \
+  for (unsigned int __mask = __ballot(1),              \
             __num = __popc(__mask),                    \
             __lanemask = mallocMC::lanemask_lt(),      \
             __local_id = __popc(__lanemask & __mask),  \
@@ -121,7 +115,6 @@ namespace CUDA
 
 namespace mallocMC
 {
-  typedef unsigned int uint32_richtig_huebsch;
 
   template<int PSIZE>
   class __PointerEquivalent
@@ -139,76 +132,76 @@ namespace mallocMC
   typedef mallocMC::__PointerEquivalent<sizeof(char*)>::type PointerEquivalent;
 
 
-  MAMC_ACC inline uint32_richtig_huebsch laneid()
+  MAMC_ACCELERATOR inline boost::uint32_t laneid()
   {
-    uint32_richtig_huebsch mylaneid;
+    boost::uint32_t mylaneid;
     asm("mov.u32 %0, %laneid;" : "=r" (mylaneid));
     return mylaneid;
   }
 
-  MAMC_ACC inline uint32_richtig_huebsch warpid()
+  MAMC_ACCELERATOR inline boost::uint32_t warpid()
   {
-    uint32_richtig_huebsch mywarpid;
+    boost::uint32_t mywarpid;
     asm("mov.u32 %0, %warpid;" : "=r" (mywarpid));
     return mywarpid;
   }
-  MAMC_ACC inline uint32_richtig_huebsch nwarpid()
+  MAMC_ACCELERATOR inline boost::uint32_t nwarpid()
   {
-    uint32_richtig_huebsch mynwarpid;
+    boost::uint32_t mynwarpid;
     asm("mov.u32 %0, %nwarpid;" : "=r" (mynwarpid));
     return mynwarpid;
   }
 
-  MAMC_ACC inline uint32_richtig_huebsch smid()
+  MAMC_ACCELERATOR inline boost::uint32_t smid()
   {
-    uint32_richtig_huebsch mysmid;
+    boost::uint32_t mysmid;
     asm("mov.u32 %0, %smid;" : "=r" (mysmid));
     return mysmid;
   }
 
-  MAMC_ACC inline uint32_richtig_huebsch nsmid()
+  MAMC_ACCELERATOR inline boost::uint32_t nsmid()
   {
-    uint32_richtig_huebsch mynsmid;
+    boost::uint32_t mynsmid;
     asm("mov.u32 %0, %nsmid;" : "=r" (mynsmid));
     return mynsmid;
   }
-  MAMC_ACC inline uint32_richtig_huebsch lanemask()
+  MAMC_ACCELERATOR inline boost::uint32_t lanemask()
   {
-    uint32_richtig_huebsch lanemask;
+    boost::uint32_t lanemask;
     asm("mov.u32 %0, %lanemask_eq;" : "=r" (lanemask));
     return lanemask;
   }
 
-  MAMC_ACC inline uint32_richtig_huebsch lanemask_le()
+  MAMC_ACCELERATOR inline boost::uint32_t lanemask_le()
   {
-    uint32_richtig_huebsch lanemask;
+    boost::uint32_t lanemask;
     asm("mov.u32 %0, %lanemask_le;" : "=r" (lanemask));
     return lanemask;
   }
 
-  MAMC_ACC inline uint32_richtig_huebsch lanemask_lt()
+  MAMC_ACCELERATOR inline boost::uint32_t lanemask_lt()
   {
-    uint32_richtig_huebsch lanemask;
+    boost::uint32_t lanemask;
     asm("mov.u32 %0, %lanemask_lt;" : "=r" (lanemask));
     return lanemask;
   }
 
-  MAMC_ACC inline uint32_richtig_huebsch lanemask_ge()
+  MAMC_ACCELERATOR inline boost::uint32_t lanemask_ge()
   {
-    uint32_richtig_huebsch lanemask;
+    boost::uint32_t lanemask;
     asm("mov.u32 %0, %lanemask_ge;" : "=r" (lanemask));
     return lanemask;
   }
 
-  MAMC_ACC inline uint32_richtig_huebsch lanemask_gt()
+  MAMC_ACCELERATOR inline boost::uint32_t lanemask_gt()
   {
-    uint32_richtig_huebsch lanemask;
+    boost::uint32_t lanemask;
     asm("mov.u32 %0, %lanemask_gt;" : "=r" (lanemask));
     return lanemask;
   }
 
   template<class T>
-  MAMC_ACC inline T divup(T a, T b) { return (a + b - 1)/b; }
+  MAMC_ACCELERATOR inline T divup(T a, T b) { return (a + b - 1)/b; }
 
 }
 

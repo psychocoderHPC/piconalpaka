@@ -35,19 +35,19 @@
 
 namespace mallocMC{
 namespace DistributionPolicies{
-    
-  class Noop 
+
+  class Noop
   {
     typedef boost::uint32_t uint32;
 
     public:
 
-    MAMC_ACC
+    MAMC_ACCELERATOR
     uint32 collect(uint32 bytes){
       return bytes;
     }
 
-    MAMC_ACC
+    MAMC_ACCELERATOR
     void* distribute(void* allocatedMem){
       return allocatedMem;
     }

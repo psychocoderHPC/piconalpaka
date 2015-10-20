@@ -35,12 +35,12 @@ namespace mallocMC{
 namespace ReservePoolPolicies{
 
   struct NoOp{
-    MAMC_ACC
+    MAMC_ACCELERATOR
     static void* setMemPool(size_t memsize){
       return NULL;
     }
 
-    MAMC_ACC
+    MAMC_ACCELERATOR
     static void resetMemPool(void *p=NULL){
     }
 

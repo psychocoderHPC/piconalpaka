@@ -51,15 +51,19 @@ namespace mallocMC{                                                            \
  * many core memory allocator with a typedef.
  */
 #if defined(MAMC_CUDA_ENABLED) && defined(__CUDACC__)
-    #define MALLOCMC_OBJECT()                                                  \
-        namespace mallocMC{                                                    \
-            MAMC_ACC mallocMCType mallocMCGlobalObject;      \
-        }
+
+#define MALLOCMC_OBJECT()                                                      \
+    namespace mallocMC{                                                        \
+        MAMC_ACCELERATOR mallocMCType mallocMCGlobalObject;                    \
+    }
+
 #else
-    #define MALLOCMC_OBJECT()                                                  \
-        namespace mallocMC{                                                    \
-            mallocMCType mallocMCGlobalObject;                                 \
-        }
+
+#define MALLOCMC_OBJECT()                                                      \
+    namespace mallocMC{                                                        \
+        mallocMCType mallocMCGlobalObject;                                     \
+    }
+
 #endif
 
 /** Creates a global object of a many core memory allocator
@@ -90,21 +94,26 @@ MAMC_HOST void finalizeHeap(                                                   \
  * Will use the global object defined by MALLOCMC_SET_ALLOCATOR_TYPE and
  * use it to generate global functions that use this type internally.
  */
-#define MALLOCMC_AVAILABLESLOTS()                                              \
-namespace mallocMC{                                                            \
-MAMC_HOST_ACC                                                                  \
-unsigned getAvailableSlots(                                                    \
-    size_t slotSize,                                                           \
-    mallocMCType &p = mallocMCGlobalObject)                                    \
-{                                                                              \
-    return p.getAvailableSlots(slotSize);                                      \
-}                                                                              \
-MAMC_HOST_ACC                                                                  \
-bool providesAvailableSlots()                                                  \
-{                                                                              \
-    return Traits<mallocMCType>::providesAvailableSlots;                       \
-}                                                                              \
+#define MALLOCMC_AVAILABLESLOTS()                                               \
+namespace mallocMC{                                                             \
+MAMC_HOST                                                                       \
+unsigned getAvailableSlots(                                                     \
+    size_t slotSize,                                                            \
+    mallocMCType &p = mallocMCGlobalObject){                                    \
+    return p.getAvailableSlots(slotSize);                                       \
+}                                                                               \
+MAMC_ACCELERATOR                                                                \
+unsigned getAvailableSlotsAccelerator(                                          \
+    size_t slotSize,                                                            \
+    mallocMCType &p = mallocMCGlobalObject){                                    \
+    return p.getAvailableSlotsAccelerator(slotSize);                            \
+}                                                                               \
+MAMC_HOST MAMC_ACCELERATOR                                                      \
+bool providesAvailableSlots(){                                                  \
+    return Traits<mallocMCType>::providesAvailableSlots;                        \
+}                                                                               \
 } /* end namespace mallocMC */
+
 
 /** __THROW is defined in Glibc so it is not available on all platforms.
  */
@@ -121,18 +130,19 @@ bool providesAvailableSlots()                                                  \
 #define MALLOCMC_MALLOC()                                                      \
 namespace mallocMC{                                                            \
 _Pragma("hd_warning_disable")                                                  \
-MAMC_ACC                                                                       \
+MAMC_ACCELERATOR                                                               \
 void* malloc(size_t t) __THROW                                                 \
 {                                                                              \
   return mallocMC::mallocMCGlobalObject.alloc(t);                              \
 }                                                                              \
 _Pragma("hd_warning_disable")                                                  \
-MAMC_ACC                                                                       \
+MAMC_ACCELERATOR                                                               \
 void free(void* p) __THROW                                                     \
 {                                                                              \
   mallocMC::mallocMCGlobalObject.dealloc(p);                                   \
 }                                                                              \
 } /* end namespace mallocMC */
+
 
 /** Create the function getHeapLocations inside a namespace
  *
