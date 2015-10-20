@@ -97,13 +97,13 @@ struct ConcatListOfFrames
             {
                 localCounter = 0;
                 /* clear storageOffset array*/
-                for (int threadIdx = 0; threadIdx < particlePerFrame; ++threadIdx)
+                for (int threadIndex = 0; threadIndex < particlePerFrame; ++threadIndex)
                 {
-                    storageOffset[threadIdx] = -1;
-                    PMACC_AUTO(parSrc, ((*srcFramePtr)[threadIdx]));
+                    storageOffset[threadIndex] = -1;
+                    PMACC_AUTO(parSrc, ((*srcFramePtr)[threadIndex]));
                     /*count particle in frame*/
-                    if (parSrc[multiMask_] == 1 && filter(*srcFramePtr, threadIdx))
-                        storageOffset[threadIdx] = localCounter++;
+                    if (parSrc[multiMask_] == 1 && filter(*srcFramePtr, threadIndex))
+                        storageOffset[threadIndex] = localCounter++;
                 }
 
                 /* atomic update with openmp*/
@@ -113,12 +113,12 @@ struct ConcatListOfFrames
                     counter += localCounter;
                 }
 
-                for (int threadIdx = 0; threadIdx < particlePerFrame; ++threadIdx)
+                for (int threadIndex = 0; threadIndex < particlePerFrame; ++threadIndex)
                 {
-                    if (storageOffset[threadIdx] != -1)
+                    if (storageOffset[threadIndex] != -1)
                     {
-                        PMACC_AUTO(parSrc, ((*srcFramePtr)[threadIdx]));
-                        PMACC_AUTO(parDest, destFrame[globalOffset + storageOffset[threadIdx]]);
+                        PMACC_AUTO(parSrc, ((*srcFramePtr)[threadIndex]));
+                        PMACC_AUTO(parDest, destFrame[globalOffset + storageOffset[threadIndex]]);
                         PMACC_AUTO(parDestNoGlobalIdx, deselect<globalCellIdx<> >(parDest));
                         assign(parDestNoGlobalIdx, parSrc);
                         /*calculate global cell index*/
