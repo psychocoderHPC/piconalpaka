@@ -61,7 +61,7 @@ ALPAKA_FN_ACC void operator()(
     DataSpace<simDim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<simDim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    PMACC_AUTO(sh_sumJ,alpaka::block::shared::allocVar<float3_X>(acc));
+    PMACC_AUTO(sh_sumJ,alpaka::block::shared::allocVar<__COUNTER__,float3_X>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 

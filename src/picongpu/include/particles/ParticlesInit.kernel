@@ -89,7 +89,7 @@ ALPAKA_FN_ACC void operator()(
 
     const DataSpace<simDim> superCells(mapper.getGridSuperCells());
 
-    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FRAME *>(acc));
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<__COUNTER__,FRAME *>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 
@@ -112,7 +112,7 @@ ALPAKA_FN_ACC void operator()(
 
     const float_X realParticlesPerCell = realDensity * CELL_VOLUME;
 
-    PMACC_AUTO(finished,alpaka::block::shared::allocVar<int>(acc));
+    PMACC_AUTO(finished,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
     if (linearThreadIdx == 0)
         finished = 1;
     alpaka::block::sync::syncBlockThreads(acc);

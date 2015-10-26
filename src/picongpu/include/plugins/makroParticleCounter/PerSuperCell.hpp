@@ -69,9 +69,9 @@ ALPAKA_FN_ACC void operator()(
 
     const int linearThreadIdx = DataSpaceOperations<simDim>::template map<SuperCellSize > (threadIndex);
 
-    PMACC_AUTO(counterValue,alpaka::block::shared::allocVar<uint64_cu>(acc));
-    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FrameType *>(acc));
-    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
+    PMACC_AUTO(counterValue,alpaka::block::shared::allocVar<__COUNTER__,uint64_cu>(acc));
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<__COUNTER__,FrameType *>(acc));
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
 
     if (linearThreadIdx == 0)
     {

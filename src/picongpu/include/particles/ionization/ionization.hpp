@@ -123,10 +123,10 @@ ALPAKA_FN_ACC void operator()(
 
     alpaka::block::sync::syncBlockThreads(acc);
 
-    PMACC_AUTO(ionFrame,alpaka::block::shared::allocVar<IONFRAME *>(acc));
-    PMACC_AUTO(electronFrame,alpaka::block::shared::allocVar<ELECTRONFRAME *>(acc));
-    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
-    PMACC_AUTO(maxParticlesInFrame,alpaka::block::shared::allocVar<lcellId_t>(acc));
+    PMACC_AUTO(ionFrame,alpaka::block::shared::allocVar<__COUNTER__,IONFRAME *>(acc));
+    PMACC_AUTO(electronFrame,alpaka::block::shared::allocVar<__COUNTER__,ELECTRONFRAME *>(acc));
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
+    PMACC_AUTO(maxParticlesInFrame,alpaka::block::shared::allocVar<__COUNTER__,lcellId_t>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialized*/
 
@@ -149,7 +149,7 @@ ALPAKA_FN_ACC void operator()(
     /* Declare counter in shared memory that will later tell the current fill level or
      * occupation of the newly created target electron frames.
      */
-    PMACC_AUTO(newFrameFillLvl,alpaka::block::shared::allocVar<int>(acc));
+    PMACC_AUTO(newFrameFillLvl,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait until all shared memory is initialized*/
 

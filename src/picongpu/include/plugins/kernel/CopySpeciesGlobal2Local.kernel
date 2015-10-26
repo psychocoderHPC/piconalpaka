@@ -72,9 +72,9 @@ ALPAKA_FN_ACC void operator()(
 
     DataSpace<simDim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    auto destFramePtr(alpaka::block::shared::allocArr<DestFramePtr, cellsInSuperCell>(acc));
-    auto linearSuperCellIds(alpaka::block::shared::allocArr<int, cellsInSuperCell>(acc));
-    PMACC_AUTO(hdf5ParticleOffset,alpaka::block::shared::allocVar<int>(acc));
+    auto destFramePtr(alpaka::block::shared::allocArr<__COUNTER__,DestFramePtr, cellsInSuperCell>(acc));
+    auto linearSuperCellIds(alpaka::block::shared::allocArr<__COUNTER__,int, cellsInSuperCell>(acc));
+    PMACC_AUTO(hdf5ParticleOffset,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
 
 
     const int linearThreadIdx = threadIndex.x();

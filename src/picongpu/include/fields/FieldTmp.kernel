@@ -68,9 +68,9 @@ namespace picongpu
 
         const int linearThreadIdx = DataSpaceOperations<simDim>::template map<SuperCellSize > ( threadIndex );
 
-        PMACC_AUTO(frame,alpaka::block::shared::allocVar<typename ParBox::FrameType *>(acc));
-        PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
-        PMACC_AUTO(particlesInSuperCell,alpaka::block::shared::allocVar<lcellId_t>(acc));
+        PMACC_AUTO(frame,alpaka::block::shared::allocVar<__COUNTER__,typename ParBox::FrameType *>(acc));
+        PMACC_AUTO(isValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
+        PMACC_AUTO(particlesInSuperCell,alpaka::block::shared::allocVar<__COUNTER__,lcellId_t>(acc));
 
         /* wait until all shared memory is initialised */
         alpaka::block::sync::syncBlockThreads(acc);

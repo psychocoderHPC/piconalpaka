@@ -85,8 +85,8 @@ struct CreateParticlesFromParticleImpl : private T_Functor
 
         DataSpace<simDim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-        PMACC_AUTO(destFrame,alpaka::block::shared::allocVar<DestFrameType*>(acc));
-        PMACC_AUTO(particlesInDestSuperCell,alpaka::block::shared::allocVar<int>(acc));
+        PMACC_AUTO(destFrame,alpaka::block::shared::allocVar<__COUNTER__,DestFrameType*>(acc));
+        PMACC_AUTO(particlesInDestSuperCell,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
 
         alpaka::block::sync::syncBlockThreads(acc);
 
