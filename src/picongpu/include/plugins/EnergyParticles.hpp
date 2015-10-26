@@ -68,10 +68,10 @@ ALPAKA_FN_ACC void operator()(
     DataSpace<simDim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<simDim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FRAME *>(acc));         /* pointer to particle data frame */
-    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));          /* is data frame valid? */
-    PMACC_AUTO(shEnergyKin,alpaka::block::shared::allocVar<float_X>(acc));   /* shared kinetic energy */
-    PMACC_AUTO(shEnergy,alpaka::block::shared::allocVar<float_X>(acc));      /* shared total energy */
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<__COUNTER__,FRAME *>(acc));         /* pointer to particle data frame */
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));          /* is data frame valid? */
+    PMACC_AUTO(shEnergyKin,alpaka::block::shared::allocVar<__COUNTER__,float_X>(acc));   /* shared kinetic energy */
+    PMACC_AUTO(shEnergy,alpaka::block::shared::allocVar<__COUNTER__,float_X>(acc));      /* shared total energy */
 
     alpaka::block::sync::syncBlockThreads(acc); /* wait that all shared memory is initialised */
 

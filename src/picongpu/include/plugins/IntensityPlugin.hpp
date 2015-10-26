@@ -73,8 +73,8 @@ ALPAKA_FN_ACC void operator()(
     DataSpace<DIM2> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<DIM2> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    auto const s_integrated(alpaka::block::shared::allocArr<float_X, SuperCellSize::y::value>(acc));
-    auto const s_max(alpaka::block::shared::allocArr<float_X, SuperCellSize::y::value>(acc));
+    auto const s_integrated(alpaka::block::shared::allocArr<__COUNTER__,float_X, SuperCellSize::y::value>(acc));
+    auto const s_max(alpaka::block::shared::allocArr<__COUNTER__,float_X, SuperCellSize::y::value>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 

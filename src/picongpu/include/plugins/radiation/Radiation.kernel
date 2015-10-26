@@ -117,9 +117,9 @@ ALPAKA_FN_ACC void operator()(
     DataSpace<simDim> const blockIndex(alpaka::idx::getIdx<alpaka::Grid, alpaka::Blocks>(acc));
     DataSpace<simDim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FRAME *>(acc)); // pointer to  frame storing particles
-    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc)); // bool saying if frame is valid
-    PMACC_AUTO(particlesInFrame,alpaka::block::shared::allocVar<lcellId_t>(acc)); // number  of particles in current frame
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<__COUNTER__,FRAME *>(acc)); // pointer to  frame storing particles
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc)); // bool saying if frame is valid
+    PMACC_AUTO(particlesInFrame,alpaka::block::shared::allocVar<__COUNTER__,lcellId_t>(acc)); // number  of particles in current frame
 
     using namespace parameters; // parameters of radiation
 
@@ -135,25 +135,25 @@ ALPAKA_FN_ACC void operator()(
 
     const int blockSize=PMacc::math::CT::volume<Block>::type::value;
     // vectorial part of the integrand in the Jackson formula
-    auto real_amplitude_s(alpaka::block::shared::allocArr<vector_64, blockSize>(acc));
+    auto real_amplitude_s(alpaka::block::shared::allocArr<__COUNTER__,vector_64, blockSize>(acc));
 
     // retarded time
-    auto t_ret_s(alpaka::block::shared::allocArr<picongpu::float_64, blockSize>(acc));
+    auto t_ret_s(alpaka::block::shared::allocArr<__COUNTER__,picongpu::float_64, blockSize>(acc));
 
     // storage for macro particle weighting needed if
     // the coherent and incoherent radiation of a single
     // macro-particle needs to be considered
 #if (__COHERENTINCOHERENTWEIGHTING__==1)
-    auto radWeighting_s(alpaka::block::shared::allocArr<float_X, blockSize>(acc));
+    auto radWeighting_s(alpaka::block::shared::allocArr<__COUNTER__,float_X, blockSize>(acc));
 #endif
 
     // particle counter used if not all particles are considered for
     // radiation calculation
-    PMACC_AUTO(counter_s,alpaka::block::shared::allocVar<int>(acc));
+    PMACC_AUTO(counter_s,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
 
     // memory for Nyquist frequency at current time step
 #if (__NYQUISTCHECK__==1)
-    auto lowpass_s(alpaka::block::shared::allocArr<NyquistLowPass, blockSize>(acc));
+    auto lowpass_s(alpaka::block::shared::allocArr<__COUNTER__,NyquistLowPass, blockSize>(acc));
 #endif
 
 

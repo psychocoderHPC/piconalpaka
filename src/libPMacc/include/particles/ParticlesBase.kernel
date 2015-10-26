@@ -79,13 +79,13 @@ ALPAKA_FN_ACC void operator()(
     DataSpace<Dim> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
     //\todo: testen ob es schneller ist, erst zu flushen wennn Source voll ist
-    auto destFrames(alpaka::block::shared::allocArr<FRAME *, Exchanges>(acc));
-    auto destFramesCounter(alpaka::block::shared::allocArr<int, Exchanges>(acc)); //count particles per frame
-    PMACC_AUTO(anyDestFrameFull,alpaka::block::shared::allocVar<bool>(acc)); //flag if any destination Frame is full
+    auto destFrames(alpaka::block::shared::allocArr<__COUNTER__,FRAME *, Exchanges>(acc));
+    auto destFramesCounter(alpaka::block::shared::allocArr<__COUNTER__,int, Exchanges>(acc)); //count particles per frame
+    PMACC_AUTO(anyDestFrameFull,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc)); //flag if any destination Frame is full
 
-    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FRAME *>(acc));
-    PMACC_AUTO(isFrameValid,alpaka::block::shared::allocVar<bool>(acc));
-    PMACC_AUTO(mustShift,alpaka::block::shared::allocVar<bool>(acc));
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<__COUNTER__,FRAME *>(acc));
+    PMACC_AUTO(isFrameValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
+    PMACC_AUTO(mustShift,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 
@@ -283,14 +283,14 @@ ALPAKA_FN_ACC void operator()(
 
     DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIndex)));
 
-    PMACC_AUTO(lastFrame,alpaka::block::shared::allocVar<FRAME *>(acc));
-    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
+    PMACC_AUTO(lastFrame,alpaka::block::shared::allocVar<__COUNTER__,FRAME *>(acc));
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
 
-    auto gapIndices_sh(alpaka::block::shared::allocArr<int, TileSize>(acc));
-    PMACC_AUTO(counterGaps,alpaka::block::shared::allocVar<int>(acc));
-    PMACC_AUTO(counterParticles,alpaka::block::shared::allocVar<int>(acc));
+    auto gapIndices_sh(alpaka::block::shared::allocArr<__COUNTER__,int, TileSize>(acc));
+    PMACC_AUTO(counterGaps,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
+    PMACC_AUTO(counterParticles,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
 
-    PMACC_AUTO(srcGap,alpaka::block::shared::allocVar<int>(acc));
+    PMACC_AUTO(srcGap,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 
@@ -366,13 +366,13 @@ ALPAKA_FN_ACC void operator()(
     DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIndex)));
 
     //data copied from right (last) to left (first)
-    PMACC_AUTO(firstFrame,alpaka::block::shared::allocVar<FRAME *>(acc));
-    PMACC_AUTO(lastFrame,alpaka::block::shared::allocVar<FRAME *>(acc));
-    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
+    PMACC_AUTO(firstFrame,alpaka::block::shared::allocVar<__COUNTER__,FRAME *>(acc));
+    PMACC_AUTO(lastFrame,alpaka::block::shared::allocVar<__COUNTER__,FRAME *>(acc));
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
 
-    auto particleIndices_sh(alpaka::block::shared::allocArr<int, TileSize>(acc));
-    PMACC_AUTO(counterGaps,alpaka::block::shared::allocVar<int>(acc));
-    PMACC_AUTO(counterParticles,alpaka::block::shared::allocVar<int>(acc));
+    auto particleIndices_sh(alpaka::block::shared::allocArr<__COUNTER__,int, TileSize>(acc));
+    PMACC_AUTO(counterGaps,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
+    PMACC_AUTO(counterParticles,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 
@@ -494,8 +494,8 @@ ALPAKA_FN_ACC void operator()(
 
     const int linearThreadIdx = threadIndex.x();
 
-    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FrameType *>(acc));
-    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<__COUNTER__,FrameType *>(acc));
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialized*/
 
@@ -556,11 +556,11 @@ ALPAKA_FN_ACC void operator()(
 
     DataSpace<Dim> const superCellIdx(mapper.getSuperCellIndex(DataSpace<Dim > (blockIndex)));
 
-    PMACC_AUTO(numBashedParticles,alpaka::block::shared::allocVar<uint32_t>(acc));
-    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FRAME *>(acc));
-    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<bool>(acc));
-    PMACC_AUTO(hasMemory,alpaka::block::shared::allocVar<bool>(acc));
-    PMACC_AUTO(tmpBorder,alpaka::block::shared::allocVar<TileDataBox<BORDER>>(acc));
+    PMACC_AUTO(numBashedParticles,alpaka::block::shared::allocVar<__COUNTER__,uint32_t>(acc));
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<__COUNTER__,FRAME *>(acc));
+    PMACC_AUTO(isValid,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
+    PMACC_AUTO(hasMemory,alpaka::block::shared::allocVar<__COUNTER__,bool>(acc));
+    PMACC_AUTO(tmpBorder,alpaka::block::shared::allocVar<__COUNTER__,TileDataBox<BORDER>>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 
@@ -653,9 +653,9 @@ ALPAKA_FN_ACC void operator()(
 
     DataSpace<1> const threadIndex(alpaka::idx::getIdx<alpaka::Block, alpaka::Threads>(acc));
 
-    PMACC_AUTO(frame,alpaka::block::shared::allocVar<FRAME *>(acc));
-    PMACC_AUTO(elementCount,alpaka::block::shared::allocVar<int>(acc));
-    PMACC_AUTO(tmpBorder,alpaka::block::shared::allocVar<TileDataBox<BORDER>>(acc));
+    PMACC_AUTO(frame,alpaka::block::shared::allocVar<__COUNTER__,FRAME *>(acc));
+    PMACC_AUTO(elementCount,alpaka::block::shared::allocVar<__COUNTER__,int>(acc));
+    PMACC_AUTO(tmpBorder,alpaka::block::shared::allocVar<__COUNTER__,TileDataBox<BORDER>>(acc));
 
     alpaka::block::sync::syncBlockThreads(acc); /*wait that all shared memory is initialised*/
 
